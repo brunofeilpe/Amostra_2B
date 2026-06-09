@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Fórmulas</title>
+    <link rel="stylesheet" href="second.css">
+    <script src="org.js" defer></script>
+</head>
+<body>
+    <main>
+        <header class="hero">
+            <div>
+                <p class="eyebrow">Calculadora de fórmulas</p>
+                <h1 id="subtitle">Escolha um cálculo</h1>
+            </div>
+            <p class="lead">
+                Selecione a operação, preencha os campos e veja o resultado na própria tela.
+                Agora a calculadora também inclui fórmulas físicas e progressões matemáticas.
+            </p>
+        </header>
+
+        <section class="card">
+            <form id="calculator-form" class="calculator-form">
+                <label class="field">
+                    <span>Tipo de cálculo</span>
+                    <select id="calc-type" name="calcType">
+                        <option value="sum">Soma</option>
+                        <option value="subtract">Subtração</option>
+                        <option value="multiply">Multiplicação</option>
+                        <option value="divide">Divisão</option>
+                        <option value="bhaskara">Bhaskara</option>
+                        <option value="hypotenuse">Hipotenusa</option>
+                        <option value="electrical">Grandezas elétricas</option>
+                        <option value="physics">Física</option>
+                        <option value="progression">Progressões matemáticas</option>
+                        <option value="log">Logaritmo</option>
+                        <option value="finance">Cálculos financeiros</option>
+                    </select>
+                </label>
+
+                <div id="dynamic-fields"></div>
+
+                <button type="submit" class="submit-button">Calcular</button>
+            </form>
+
+            <section class="result-card" aria-live="polite">
+                <h2>Resultado</h2>
+                <pre id="result">Selecione um cálculo e preencha os campos.</pre>
+            </section>
+        </section>
+    </main>
+</body>
+</html>
