@@ -54,6 +54,12 @@ h1 {
     box-shadow: 4px 4px 0 #000;
 }
 
+.foto.img,
+img.foto {
+    display: block;
+    object-fit: cover;
+}
+
 .nome {
     font-size: 22px;
     font-weight: bold;
