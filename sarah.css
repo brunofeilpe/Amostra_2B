@@ -7,7 +7,7 @@
 body {
     font-family: Arial, sans-serif;
     background:
-        radial-gradient(circle at top, #1a0a0a 0%, #080303 58%);
+        radial-gradient(circle at top, #2a1010 0%, #0f0f10 58%);
     color: #f5f5f5;
     min-height: 100vh;
     padding: 40px;
@@ -15,7 +15,7 @@ body {
 
 h1 {
     text-align: center;
-    color: #a02020;
+    color: #ff4081;
     margin-bottom: 40px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -31,8 +31,8 @@ h1 {
 }
 
 .card {
-    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
-    border: 3px solid #4a2020;
+    background: linear-gradient(180deg, #1f1114 0%, #1a0e11 100%);
+    border: 3px solid #5c2a3a;
     border-radius: 15px;
     padding: 25px;
     text-align: center;
@@ -54,7 +54,7 @@ h1 {
 .foto {
     width: 100px;
     height: 100px;
-    background-color: #8b1a1a;
+    background-color: #ff4081;
     border: 3px solid #000;
     border-radius: 50%;
     box-shadow: 4px 4px 0 #000;
@@ -81,7 +81,7 @@ h1 {
 .nome {
     font-size: 22px;
     font-weight: bold;
-    color: #cc3333;
+    color: #ff4081;
     margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -93,8 +93,8 @@ h1 {
     padding: 8px 20px;
     border: 2px solid #000;
     border-radius: 999px;
-    background: #8b1a1a;
-    color: #fff;
+    background: #ff4081;
+    color: #111;
     font-weight: 800;
     text-transform: uppercase;
     font-size: 0.82rem;
@@ -113,32 +113,36 @@ h1 {
     box-shadow: 0 0 0 #000;
 }
 
-.steam-credit {
-    position: fixed;
-    bottom: 12px;
-    left: 12px;
-    z-index: 999;
+footer {
+    text-align: center;
+    margin-top: 40px;
 }
 
-.steam-credit a {
+footer a {
     display: inline-block;
-    border: 2px solid #4a2020;
-    border-radius: 8px;
-    padding: 6px 14px;
-    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
-    color: #a02020;
+    border: 3px solid #5c2a3a;
+    border-radius: 12px;
+    padding: 12px 32px;
+    background: linear-gradient(180deg, #1f1114 0%, #1a0e11 100%);
+    color: #ff4081;
     font-weight: 800;
-    font-size: 0.85rem;
+    font-size: 1.1rem;
     text-decoration: none;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
-    transition: background 0.2s;
+    letter-spacing: 0.06em;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
-.steam-credit a:hover {
-    background: #a02020;
-    color: #fff;
+footer a:hover {
+    background: #ff4081;
+    color: #111;
+    box-shadow: 6px 6px 0 #000;
+}
+
+footer a:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 #000;
 }
 
 /* Perfil individual */
@@ -146,10 +150,10 @@ h1 {
     display: inline-block;
     margin-bottom: 24px;
     padding: 8px 16px;
-    border: 2px solid #4a2020;
+    border: 2px solid #5c2a3a;
     border-radius: 8px;
-    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
-    color: #a02020;
+    background: linear-gradient(180deg, #1f1114 0%, #1a0e11 100%);
+    color: #ff4081;
     font-weight: bold;
     text-decoration: none;
     text-transform: uppercase;
@@ -160,35 +164,38 @@ h1 {
 }
 
 .back-link:hover {
-    background: #a02020;
-    color: #fff;
+    background: #ff4081;
+    color: #111;
 }
 
 .profile-card {
-    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
-    border: 3px solid #ff0000;
+    background: linear-gradient(180deg, #1f1114 0%, #1a0e11 100%);
+    border: 3px solid #f12364;
     border-radius: 15px;
     padding: 40px;
     text-align: center;
     box-shadow: 0 8px 0 rgba(0, 0, 0, 0.55);
     max-width: 400px;
     margin: 0 auto;
-    box-shadow: 0 8px 32px rgb(255, 0, 0);
+    box-shadow: 0 8px 32px rgb(255, 0, 170);
 }
 
 .profile-card h1 {
     margin-bottom: 10px;
+    color: #ff4081;
+    text-shadow: 3px 3px 0 #000;
 }
 
 .profile-card .descricao {
-    color: #b08080;
+    color: #d0a0b0;
+    font-weight: bold;
 }
 
 .profile-card .bio {
     margin-top: 16px;
     text-align: left;
     line-height: 1.6;
-    color: #d0b0b0;
+    color: #d0d0d0;
 }
 
 .profile-card .bio p {
@@ -196,5 +203,5 @@ h1 {
 }
 
 .profile-card .bio strong {
-    color: #cc4444;
+    color: #ff4081;
 }

@@ -1,0 +1,55 @@
+/* ===== Guilherme — Tema Roxo ===== */
+/* Sobrescreve membros.css com tons de roxo */
+
+.back-link {
+    background: #1e0a2e;
+    border-color: #a600ff;
+    color: #c44dff;
+    box-shadow: 4px 4px 0 #33004d;
+}
+.back-link:hover {
+    background: #a600ff;
+    color: #111;
+}
+
+.profile-card {
+    background: linear-gradient(180deg, #1a0a24 0%, #12081a 100%);
+    border-color: #a600ff;
+    box-shadow: 0 8px 0 #33004d;
+    box-shadow: 0 8px 32px rgb(149, 0, 255);
+}
+
+.profile-card h1 {
+    color: #a600ff;
+    text-shadow: 3px 3px 0 #33004d;
+}
+
+.profile-card .descricao {
+    color: #b07ad4;
+}
+
+.profile-card .bio strong {
+    color: #a600ff;
+}
+
+.profile-card p {
+    color: #cca8e6;
+}
+
+.foto {
+    background-color: #a600ff;
+    border-color: #33004d;
+    box-shadow: 4px 4px 0 #33004d;
+}
+
+/* Decoração extra — borda roxa brilhante no card */
+.profile-card::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #a600ff;
+    margin: 0 auto 20px;
+    border-radius: 2px;
+    box-shadow: 2px 2px 0 #33004d;
+}

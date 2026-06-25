@@ -52,24 +52,102 @@ h1 {
     border-radius: 50%;
     margin: 0 auto 15px;
     box-shadow: 4px 4px 0 #000;
-}
-
-.foto.img,
-img.foto {
     display: block;
     object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.foto-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px;
+}
+
+.foto-wrapper .foto {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+}
+
+.foto-hover {
+    opacity: 0;
+}
+
+.foto-wrapper:hover .foto-default {
+    opacity: 0;
+}
+
+.foto-wrapper:hover .foto-hover {
+    opacity: 1;
 }
 
 .nome {
     font-size: 22px;
     font-weight: bold;
-    color: #ffd60a;
+    color: #ffffff;
     margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 
-.card a {
+/* Botão — Bruno */
+#btn-bruno {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 20px;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background: #01ff2b;
+    color: #111;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+#btn-bruno:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+#btn-bruno:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 #000;
+}
+
+/* Botão — Sarah */
+#btn-sarah {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 20px;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background: #ff00d9;
+    color: #111;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+#btn-sarah:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+#btn-sarah:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 #000;
+}
+
+/* Botão — Willian */
+#btn-willian {
     display: inline-block;
     margin-top: 8px;
     padding: 8px 20px;
@@ -85,12 +163,93 @@ img.foto {
     transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
-.card a:hover {
+#btn-willian:hover {
     transform: translate(1px, 1px);
     box-shadow: 2px 2px 0 #000;
 }
 
-.card a:active {
+#btn-willian:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 #000;
+}
+
+/* Botão — Guilherme */
+#btn-guilherme {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 20px;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background: #a600ff;
+    color: #111;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+#btn-guilherme:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+#btn-guilherme:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 #000;
+}
+
+/* Botão — Ozorio */
+#btn-ozorio {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 20px;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background: #004cff;
+    color: #111;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+#btn-ozorio:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+#btn-ozorio:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 #000;
+}
+
+/* Botão — Samoel */
+#btn-samoel {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 20px;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background: #f0242480;
+    color: #111;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+#btn-samoel:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+#btn-samoel:active {
     transform: translate(3px, 3px);
     box-shadow: 0 0 0 #000;
 }
@@ -100,7 +259,7 @@ footer {
     margin-top: 40px;
 }
 
-footer a {
+#btn-footer {
     display: inline-block;
     border: 3px solid #36363d;
     border-radius: 12px;
@@ -116,13 +275,13 @@ footer a {
     transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
-footer a:hover {
+#btn-footer:hover {
     background: #ff9f0a;
     color: #111;
     box-shadow: 6px 6px 0 #000;
 }
 
-footer a:active {
+#btn-footer:active {
     transform: translate(3px, 3px);
     box-shadow: 2px 2px 0 #000;
 }
