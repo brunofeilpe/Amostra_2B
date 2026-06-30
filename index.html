@@ -1,58 +1,58 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora</title>
-    <link rel="stylesheet" href="index.css">
-    <script src="main.js" defer></script>
-</head>
-<body>
-    <main class="app-shell">
-        <section class="calculator-card">
-            <header class="topbar">
-                <div>
-                    <p class="eyebrow">Calculadora</p>
-                    <h1>convencional</h1>
-                </div>
-                <a href="second.html" class="secondary-link">Fórmulas</a>
-            </header>
+<!DOCTYPE html> <!-- Define o tipo de documento como HTML5 -->
+<html lang="pt-BR"> <!-- Abre a tag html com idioma português brasileiro -->
+<head> <!-- Início da seção de cabeçalho da página -->
+    <meta charset="UTF-8"> <!-- Define a codificação de caracteres como UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Configura viewport para responsividade em dispositivos móveis -->
+    <title>Calculadora</title> <!-- Define o título da aba do navegador -->
+    <link rel="stylesheet" href="index.css"> <!-- Importa o arquivo de estilo CSS principal -->
+    <script src="main.js" defer></script> <!-- Carrega o script JS com atributo defer para executar após o HTML ser parseado -->
+</head> <!-- Fim da seção de cabeçalho -->
+<body> <!-- Início do corpo da página -->
+    <main class="app-shell"> <!-- Elemento principal que envolve todo o conteúdo da calculadora -->
+        <section class="calculator-card"> <!-- Seção que representa o cartão/container da calculadora -->
+            <header class="topbar"> <!-- Cabeçalho interno da calculadora com título e link -->
+                <div> <!-- Container para o título e subtítulo -->
+                    <p class="eyebrow">Calculadora</p> <!-- Texto pequeno acima do título principal (eyebrow) -->
+                    <h1>convencional</h1> <!-- Título principal da calculadora -->
+                </div> <!-- Fim do container de título -->
+                <a href="second.html" class="secondary-link">Fórmulas</a> <!-- Link para a página de fórmulas científicas -->
+            </header> <!-- Fim do cabeçalho interno -->
 
-            <section class="display-panel" aria-label="Visor da calculadora">
-                <input type="text" id="display" readonly aria-label="Expressão">
-            </section>
+            <section class="display-panel" aria-label="Visor da calculadora"> <!-- Painel do visor com rótulo acessível -->
+                <input type="text" id="display" readonly aria-label="Expressão"> <!-- Campo de texto readonly que mostra a expressão/resultado -->
+            </section> <!-- Fim do painel do visor -->
 
-            <section class="keypad" aria-label="Teclado da calculadora">
-                <button type="button" class="key function" onclick="clearDisplay()">AC</button>
-                <button type="button" class="key function" onclick="appendToDisplay('(')">(</button>
-                <button type="button" class="key function" onclick="appendToDisplay(')')">)</button>
-                <button type="button" class="key operator" onclick="appendToDisplay('/')">÷</button>
+            <section class="keypad" aria-label="Teclado da calculadora"> <!-- Seção do teclado numérico com rótulo acessível -->
+                <button type="button" class="key function" onclick="clearDisplay()">AC</button> <!-- Botão AC: limpa o visor (função) -->
+                <button type="button" class="key function" onclick="appendToDisplay('(')">(</button> <!-- Botão de parêntese esquerdo (função) -->
+                <button type="button" class="key function" onclick="appendToDisplay(')')">)</button> <!-- Botão de parêntese direito (função) -->
+                <button type="button" class="key operator" onclick="appendToDisplay('/')">÷</button> <!-- Botão de divisão (operador) -->
 
-                <button type="button" class="key" onclick="appendToDisplay('7')">7</button>
-                <button type="button" class="key" onclick="appendToDisplay('8')">8</button>
-                <button type="button" class="key" onclick="appendToDisplay('9')">9</button>
-                <button type="button" class="key operator" onclick="appendToDisplay('*')">×</button>
+                <button type="button" class="key" onclick="appendToDisplay('7')">7</button> <!-- Botão numérico 7 -->
+                <button type="button" class="key" onclick="appendToDisplay('8')">8</button> <!-- Botão numérico 8 -->
+                <button type="button" class="key" onclick="appendToDisplay('9')">9</button> <!-- Botão numérico 9 -->
+                <button type="button" class="key operator" onclick="appendToDisplay('*')">×</button> <!-- Botão de multiplicação (operador) -->
 
-                <button type="button" class="key" onclick="appendToDisplay('4')">4</button>
-                <button type="button" class="key" onclick="appendToDisplay('5')">5</button>
-                <button type="button" class="key" onclick="appendToDisplay('6')">6</button>
-                <button type="button" class="key operator" onclick="appendToDisplay('-')">−</button>
+                <button type="button" class="key" onclick="appendToDisplay('4')">4</button> <!-- Botão numérico 4 -->
+                <button type="button" class="key" onclick="appendToDisplay('5')">5</button> <!-- Botão numérico 5 -->
+                <button type="button" class="key" onclick="appendToDisplay('6')">6</button> <!-- Botão numérico 6 -->
+                <button type="button" class="key operator" onclick="appendToDisplay('-')">−</button> <!-- Botão de subtração (operador) -->
 
-                <button type="button" class="key" onclick="appendToDisplay('1')">1</button>
-                <button type="button" class="key" onclick="appendToDisplay('2')">2</button>
-                <button type="button" class="key" onclick="appendToDisplay('3')">3</button>
-                <button type="button" class="key operator" onclick="appendToDisplay('+')">+</button>
+                <button type="button" class="key" onclick="appendToDisplay('1')">1</button> <!-- Botão numérico 1 -->
+                <button type="button" class="key" onclick="appendToDisplay('2')">2</button> <!-- Botão numérico 2 -->
+                <button type="button" class="key" onclick="appendToDisplay('3')">3</button> <!-- Botão numérico 3 -->
+                <button type="button" class="key operator" onclick="appendToDisplay('+')">+</button> <!-- Botão de adição (operador) -->
 
-                <button type="button" class="key wide" onclick="appendToDisplay('0')">0</button>
-                <button type="button" class="key" onclick="appendToDisplay('.')">.</button>
-                <button type="button" class="key operator" onclick="appendToDisplay('^')">^</button>
-                <button type="button" class="key equals" onclick="calcular()">=</button>
+                <button type="button" class="key wide" onclick="appendToDisplay('0')">0</button> <!-- Botão numérico 0 (ocupando 2 colunas no grid) -->
+                <button type="button" class="key" onclick="appendToDisplay('.')">.</button> <!-- Botão de ponto decimal -->
+                <button type="button" class="key operator" onclick="appendToDisplay('^')">^</button> <!-- Botão de exponenciação (operador) -->
+                <button type="button" class="key equals" onclick="calcular()">=</button> <!-- Botão de igualdade: executa o cálculo -->
 
-                <button type="button" class="key function wide" onclick="appendToDisplay('%')">%</button>
-                <button type="button" class="key function" onclick="appendToDisplay('√(')">√</button>
+                <button type="button" class="key function wide" onclick="appendToDisplay('%')">%</button> <!-- Botão de porcentagem (função, 2 colunas) -->
+                <button type="button" class="key function" onclick="appendToDisplay('√(')">√</button> <!-- Botão de raiz quadrada (função) -->
                 
-            </section>
-        </section>
-    </main>
-</body>
-</html>
+            </section> <!-- Fim do teclado numérico -->
+        </section> <!-- Fim do cartão da calculadora -->
+    </main> <!-- Fim do elemento principal -->
+</body> <!-- Fim do corpo da página -->
+</html> <!-- Fim do documento HTML -->
