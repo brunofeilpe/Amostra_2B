@@ -1,0 +1,200 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at top, #1a0a0a 0%, #080303 58%);
+    color: #f5f5f5;
+    min-height: 100vh;
+    padding: 40px;
+}
+
+h1 {
+    text-align: center;
+    color: #a02020;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-shadow: 3px 3px 0 #000;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.card {
+    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
+    border: 3px solid #4a2020;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.55);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.foto-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px;
+}
+
+.foto {
+    width: 100px;
+    height: 100px;
+    background-color: #8b1a1a;
+    border: 3px solid #000;
+    border-radius: 50%;
+    box-shadow: 4px 4px 0 #000;
+    display: block;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.3s ease;
+}
+
+.foto-hover {
+    opacity: 0;
+}
+
+.foto-wrapper:hover .foto-default {
+    opacity: 0;
+}
+
+.foto-wrapper:hover .foto-hover {
+    opacity: 1;
+}
+
+.nome {
+    font-size: 22px;
+    font-weight: bold;
+    color: #cc3333;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.card a {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 20px;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background: #8b1a1a;
+    color: #fff;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.card a:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+.card a:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 #000;
+}
+
+.steam-credit {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    z-index: 999;
+}
+
+.steam-credit a {
+    display: inline-block;
+    border: 2px solid #4a2020;
+    border-radius: 8px;
+    padding: 6px 14px;
+    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
+    color: #a02020;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
+    transition: background 0.2s;
+}
+
+.steam-credit a:hover {
+    background: #a02020;
+    color: #fff;
+}
+
+/* Perfil individual */
+.back-link {
+    display: inline-block;
+    margin-bottom: 24px;
+    padding: 8px 16px;
+    border: 2px solid #4a2020;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
+    color: #a02020;
+    font-weight: bold;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55);
+    transition: background 0.2s;
+}
+
+.back-link:hover {
+    background: #a02020;
+    color: #fff;
+}
+
+.profile-card {
+    background: linear-gradient(180deg, #1f1111 0%, #180a0a 100%);
+    border: 3px solid #ff0000;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.55);
+    max-width: 400px;
+    margin: 0 auto;
+    box-shadow: 0 8px 32px rgb(255, 0, 0);
+}
+
+.profile-card h1 {
+    margin-bottom: 10px;
+}
+
+.profile-card .descricao {
+    color: #b08080;
+}
+
+.profile-card .bio {
+    margin-top: 16px;
+    text-align: left;
+    line-height: 1.6;
+    color: #d0b0b0;
+}
+
+.profile-card .bio p {
+    margin-bottom: 8px;
+}
+
+.profile-card .bio strong {
+    color: #cc4444;
+}

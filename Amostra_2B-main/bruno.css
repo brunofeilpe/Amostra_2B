@@ -1,0 +1,55 @@
+/* ===== Bruno — Tema Verde ===== */
+/* Sobrescreve membros.css com tons de verde */
+
+.back-link {
+    background: #0a2e0a;
+    border-color: #01ff2b;
+    color: #4cff6b;
+    box-shadow: 4px 4px 0 #003300;
+}
+.back-link:hover {
+    background: #01ff2b;
+    color: #111;
+}
+
+.profile-card {
+    background: linear-gradient(180deg, #0a240a 0%, #081a08 100%);
+    border-color: #01ff2b;
+    box-shadow: 0 8px 0 #003300;
+    box-shadow: 0 8px 32px rgb(22, 255, 1);
+}
+
+.profile-card h1 {
+    color: #01ff2b;
+    text-shadow: 3px 3px 0 #003300;
+}
+
+.profile-card .descricao {
+    color: #7acc7a;
+}
+
+.profile-card .bio strong {
+    color: #01ff2b;
+}
+
+.profile-card p {
+    color: #a8e6a8;
+}
+
+.foto {
+    background-color: #01ff2b;
+    border-color: #003300;
+    box-shadow: 4px 4px 0 #003300;
+}
+
+/* Decoração extra — borda verde brilhante no card */
+.profile-card::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #01ff2b;
+    margin: 0 auto 20px;
+    border-radius: 2px;
+    box-shadow: 2px 2px 0 #003300;
+}

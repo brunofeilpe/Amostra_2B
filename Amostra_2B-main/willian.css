@@ -1,0 +1,55 @@
+/* ===== Willian — Tema Laranja ===== */
+/* Sobrescreve membros.css com tons de laranja */
+
+.back-link {
+    background: #3d2a0a;
+    border-color: #ff9500;
+    color: #ffb347;
+    box-shadow: 4px 4px 0 #4a3300;
+}
+.back-link:hover {
+    background: #ff9500;
+    color: #111;
+}
+
+.profile-card {
+    background: linear-gradient(180deg, #2a1f0a 0%, #1a1408 100%);
+    border-color: #ff9500;
+    box-shadow: 0 8px 0 #4a3300;
+    box-shadow: 0 8px 32px rgb(255, 136, 0);
+}
+
+.profile-card h1 {
+    color: #ff9f0a;
+    text-shadow: 3px 3px 0 #4a3300;
+}
+
+.profile-card .descricao {
+    color: #d4a854;
+}
+
+.profile-card .bio strong {
+    color: #ff9500;
+}
+
+.profile-card p {
+    color: #e8c88a;
+}
+
+.foto {
+    background-color: #ff9500;
+    border-color: #4a3300;
+    box-shadow: 4px 4px 0 #4a3300;
+}
+
+/* Decoração extra — borda laranja brilhante no card */
+.profile-card::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff9500;
+    margin: 0 auto 20px;
+    border-radius: 2px;
+    box-shadow: 2px 2px 0 #4a3300;
+}
