@@ -287,8 +287,141 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // (Continua idêntico com todos os cálculos de geometria, engenharia e dispatcher...)
-    // [O código foi totalmente mapeado para carregar e processar o formulário perfeitamente]
+    function calculateSimple(op) {
+        switch(op) {
+            case "sum": case "subtract": {
+                const nums = parseNumbers(String(getFormValue("numbers")));
+                if (nums.length < 2) return "Informe ao menos 2 números.";
+                if (op === "sum") return `Soma: ${fmt(nums.reduce((a,v)=>a+v,0))}`;
+                return `Subtração: ${fmt(nums.reduce((a,v,i)=> i===0?v:a-v))}`;
+            }
+            case "multiply": case "divide": {
+                const v1=rn("value1"), v2=rn("value2");
+                if (v1===null||v2===null) return "Preencha os dois campos.";
+                if (op === "multiply") return `Multiplicação: ${fmt(v1*v2)}`;
+                if (v2===0) return "Divisor ≠ 0.";
+                return `Divisão: ${fmt(v1/v2)}`;
+            }
+            case "bhaskara": {
+                const a=rn("a"), b=rn("b"), c=rn("c");
+                if ([a,b,c].some(v=>v===null)) return "Preencha todos os campos.";
+                if (a===0) return "Coeficiente A ≠ 0.";
+                const delta = b*b - 4*a*c;
+                if (delta < 0) return `Δ = ${fmt(delta)} — não há raízes reais.`;
+                const x1=(-b+Math.sqrt(delta))/(2*a), x2=(-b-Math.sqrt(delta))/(2*a);
+                return `Δ = ${fmt(delta)}\nx1 = ${fmt(x1)}\nx2 = ${fmt(x2)}`;
+            }
+            case "hypotenuse": {
+                const c1=rn("cateto1"), c2=rn("cateto2");
+                if (c1===null||c2===null) return "Preencha os dois catetos.";
+                return `Hipotenusa: ${fmt(Math.sqrt(c1*c1+c2*c2))}`;
+            }
+            case "log": {
+                const baseRaw = String(getFormValue("base")).trim().toLowerCase();
+                const logaritmando = rn("logaritmando");
+                if (logaritmando===null || logaritmando<=0) return "Logaritmando deve ser > 0.";
+                let result;
+                if (baseRaw === "e") result = Math.log(logaritmando);
+                else {
+                    const base = Number(baseRaw);
+                    if (Number.isNaN(base) || base<=0 || base===1) return "Base inválida.";
+                    result = Math.log(logaritmando)/Math.log(base);
+                }
+                return `Logaritmo: ${fmt(result)}`;
+            }
+            default: return "Operação inválida.";
+        }
+    }
+
+    function calculateGeometry(op) {
+        const cfg = geometryOptions[op];
+        const vals = Object.fromEntries(cfg.fields.map(f=>[f.name, rn(f.name)]));
+        if (Object.values(vals).some(v=>v===null)) return "Preencha todos os campos.";
+        const {raio, lado, base, altura, ladoA, ladoB, ladoC, baseMaior, baseMenor,
+               d1, d2, lados, semiEixoA, semiEixoB, angulo, aresta, comprimento,
+               largura, ladoBase, R, r} = vals;
+        switch(op) {
+            case "circleArea":    return `Área: ${fmt(Math.PI*raio**2)}\nCircunferência: ${fmt(2*Math.PI*raio)}`;
+            case "squareArea":    return `Área: ${fmt(lado**2)}\nPerímetro: ${fmt(4*lado)}\nDiagonal: ${fmt(lado*Math.SQRT2)}`;
+            case "rectArea":      return `Área: ${fmt(base*altura)}\nPerímetro: ${fmt(2*(base+altura))}\nDiagonal: ${fmt(Math.sqrt(base**2+altura**2))}`;
+            case "triangleArea":  return `Área: ${fmt((base*altura)/2)}`;
+            case "triangleHeron": { const s=(ladoA+ladoB+ladoC)/2; const areaSq=s*(s-ladoA)*(s-ladoB)*(s-ladoC); if(areaSq<=0) return "Lados não formam um triângulo válido."; return `Área: ${fmt(Math.sqrt(areaSq))}\nPerímetro: ${fmt(ladoA+ladoB+ladoC)}`; }
+            case "trapezoid":     return `Área: ${fmt(((baseMaior+baseMenor)*altura)/2)}`;
+            case "rhombus":       return `Área: ${fmt((d1*d2)/2)}\nLado: ${fmt(Math.sqrt((d1/2)**2+(d2/2)**2))}`;
+            case "regularPolygon":{ const perimetro=lados*lado; const apotema=lado/(2*Math.tan(Math.PI/lados)); return `Perímetro: ${fmt(perimetro)}\nÁrea: ${fmt((perimetro*apotema)/2)}`; }
+            case "ellipseArea":   return `Área: ${fmt(Math.PI*semiEixoA*semiEixoB)}`;
+            case "sectorArea":    { const rad=(angulo*Math.PI)/180; return `Área do setor: ${fmt(0.5*raio**2*rad)}\nComprimento do arco: ${fmt(raio*rad)}`; }
+            case "sphereVol":     return `Volume: ${fmt((4/3)*Math.PI*raio**3)}\nÁrea: ${fmt(4*Math.PI*raio**2)}`;
+            case "cubeVol":       return `Volume: ${fmt(aresta**3)}\nÁrea: ${fmt(6*aresta**2)}\nDiagonal: ${fmt(aresta*Math.sqrt(3))}`;
+            case "boxVol":        return `Volume: ${fmt(comprimento*largura*altura)}\nÁrea: ${fmt(2*(comprimento*largura+comprimento*altura+largura*altura))}`;
+            case "cylinderVol":   return `Volume: ${fmt(Math.PI*raio**2*altura)}\nÁrea: ${fmt(2*Math.PI*raio*(raio+altura))}`;
+            case "coneVol":       { const gerat=Math.sqrt(raio**2+altura**2); return `Volume: ${fmt((1/3)*Math.PI*raio**2*altura)}\nGeratriz: ${fmt(gerat)}\nÁrea: ${fmt(Math.PI*raio*(raio+gerat))}`; }
+            case "pyramidVol":    return `Volume: ${fmt((ladoBase**2*altura)/3)}`;
+            case "torusVol":      return `Volume: ${fmt(2*Math.PI**2*R*r**2)}\nÁrea: ${fmt(4*Math.PI**2*R*r)}`;
+            default: return "Fórmula geométrica inválida.";
+        }
+    }
+
+    function calculateEngineering(op) {
+        const cfg = engineeringOptions[op];
+        const vals = Object.fromEntries(cfg.fields.map(f=>[f.name, rn(f.name)]));
+        if (Object.values(vals).some(v=>v===null)) return "Preencha todos os campos.";
+        switch(op) {
+            case "tensao":          return `Tensão: ${fmt(vals.forca/vals.area)} Pa`;
+            case "deformacao":      return `Deformação: ${fmt(vals.deltaL/vals.L)}`;
+            case "modElastico":     return `Módulo de Elasticidade: ${fmt(vals.tensao/vals.deformacao)} Pa`;
+            case "momentoFletor":   return `Tensão de Flexão: ${fmt((vals.momento*vals.c)/vals.inercia)} Pa`;
+            case "cisalhamento":    return `Tensão de Cisalhamento: ${fmt(vals.forca/vals.area)} Pa`;
+            case "torque":          return `Tensão de Torção: ${fmt((vals.torque*vals.raio)/vals.J)} Pa`;
+            case "flambagem":       if(vals.Le===0) return "Comprimento efetivo ≠ 0."; return `Carga Crítica: ${fmt((Math.PI**2*vals.E*vals.I)/(vals.Le**2))} N`;
+            case "calorQ":          return `Calor: ${fmt(vals.massa*vals.calor_esp*vals.deltaT)} J`;
+            case "dilatacao":       return `Dilatação: ${fmt(vals.alfa*vals.L*vals.deltaT)} m`;
+            case "rendimento":      if(vals.potTotal===0) return "Potência total ≠ 0."; return `Rendimento: ${fmt((vals.potUtil/vals.potTotal)*100)} %`;
+            case "vazao":           return `Vazão: ${fmt(vals.area*vals.velocidade)} m³/s`;
+            case "reynolds":        if(vals.mu===0) return "Viscosidade ≠ 0."; return `Número de Reynolds: ${fmt((vals.rho*vals.v*vals.D)/vals.mu)}`;
+            case "bernoulli":       { const p2=vals.p1+0.5*vals.rho*(vals.v1**2-vals.v2**2); return `Pressão 2: ${fmt(p2)} Pa`; }
+            case "pressHidro":      return `Pressão Hidrostática: ${fmt(vals.rho*9.81*vals.h)} Pa`;
+            case "capacitor":       return `Energia: ${fmt(0.5*vals.C*vals.V**2)} J`;
+            case "indutor":         return `Energia: ${fmt(0.5*vals.L_ind*vals.I**2)} J`;
+            case "reatorLC":        if(vals.L_ind===0||vals.C===0) return "Indutância e capacitância ≠ 0."; return `Frequência de Ressonância: ${fmt(1/(2*Math.PI*Math.sqrt(vals.L_ind*vals.C)))} Hz`;
+            case "divisorTensao":   if((vals.R1+vals.R2)===0) return "R1+R2 ≠ 0."; return `Tensão de saída: ${fmt(vals.Vin*(vals.R2/(vals.R1+vals.R2)))} V`;
+            case "cargaDistribuida":return `Reação em cada apoio: ${fmt((vals.w*vals.L)/2)} N`;
+            case "momentoMax":      return `Momento Máximo: ${fmt((vals.w*vals.L**2)/8)} N·m`;
+            case "inerciRetangulo": return `Momento de Inércia: ${fmt((vals.base*vals.altura**3)/12)} m⁴`;
+            case "inerciCirculo":   return `Momento de Inércia: ${fmt((Math.PI*vals.raio**4)/4)} m⁴`;
+            case "convTemp": {
+                const {valor, de} = vals; let celsius;
+                if (de===0) celsius=valor; else if(de===1) celsius=(valor-32)*5/9; else if(de===2) celsius=valor-273.15; else return "Origem inválida (0, 1 ou 2).";
+                return `°C: ${fmt(celsius)}\n°F: ${fmt(celsius*9/5+32)}\nK: ${fmt(celsius+273.15)}`;
+            }
+            case "convPressao": { const pa=vals.valor; return `atm: ${fmt(pa/101325)}\nbar: ${fmt(pa/100000)}\nmmHg: ${fmt(pa/133.322)}\npsi: ${fmt(pa/6894.76)}`; }
+            default: return "Fórmula de engenharia inválida.";
+        }
+    }
+
+    // ── dispatcher principal ──────────────────────────────────────────────────
+
+    function calculate() {
+        try {
+            const type = calcType.value;
+            switch(type) {
+                case "sum": case "subtract": case "multiply": case "divide":
+                case "bhaskara": case "hypotenuse": case "log":
+                    return calculateSimple(type);
+                case "finance":     return calculateFinance(form.elements["financeType"]?.value || Object.keys(financeOptions)[0]);
+                case "electrical":  return calculateElectrical(form.elements["electricalType"]?.value || Object.keys(electricalOptions)[0]);
+                case "physics":     return calculatePhysics(form.elements["physicsType"]?.value || Object.keys(physicsOptions)[0]);
+                case "progression": return calculateProgression(form.elements["progressionType"]?.value || Object.keys(progressionOptions)[0]);
+                case "geometry":    return calculateGeometry(form.elements["geometryType"]?.value || Object.keys(geometryOptions)[0]);
+                case "engineering": return calculateEngineering(form.elements["engineeringType"]?.value || Object.keys(engineeringOptions)[0]);
+                default: return "Operação inválida.";
+            }
+        } catch (error) {
+            console.error(error);
+            return "Erro ao calcular. Verifique os valores informados.";
+        }
+    }
+
     calcType.addEventListener("change", renderFields);
     form.addEventListener("change", (e) => {
         if(["financeType","electricalType","physicsType","progressionType","geometryType","engineeringType"].includes(e.target.name)) renderFields();
