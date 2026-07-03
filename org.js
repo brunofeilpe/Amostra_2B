@@ -287,145 +287,415 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function calculateSimple(op) {
+    // ── sub-motor de geometria ────────────────────────────────────
+
+    function calculateGeometry(op) {
+        const g = (n) => rn(n);
         switch(op) {
-            case "sum": case "subtract": {
-                const nums = parseNumbers(String(getFormValue("numbers")));
-                if (nums.length < 2) return "Informe ao menos 2 números.";
-                if (op === "sum") return `Soma: ${fmt(nums.reduce((a,v)=>a+v,0))}`;
-                return `Subtração: ${fmt(nums.reduce((a,v,i)=> i===0?v:a-v))}`;
+            case "circleArea": {
+                const r = g("raio");
+                if(r===null) return "Preencha o campo.";
+                return `Área: ${fmt(Math.PI*r*r)}\nCircunferência: ${fmt(2*Math.PI*r)}`;
             }
-            case "multiply": case "divide": {
-                const v1=rn("value1"), v2=rn("value2");
-                if (v1===null||v2===null) return "Preencha os dois campos.";
-                if (op === "multiply") return `Multiplicação: ${fmt(v1*v2)}`;
-                if (v2===0) return "Divisor ≠ 0.";
-                return `Divisão: ${fmt(v1/v2)}`;
+            case "squareArea": {
+                const l = g("lado");
+                if(l===null) return "Preencha o campo.";
+                return `Área: ${fmt(l*l)}\nPerímetro: ${fmt(4*l)}\nDiagonal: ${fmt(l*Math.SQRT2)}`;
+            }
+            case "rectArea": {
+                const b=g("base"), a=g("altura");
+                if(b===null||a===null) return "Preencha todos os campos.";
+                return `Área: ${fmt(b*a)}\nPerímetro: ${fmt(2*(b+a))}\nDiagonal: ${fmt(Math.sqrt(b*b+a*a))}`;
+            }
+            case "triangleArea": {
+                const b=g("base"), a=g("altura");
+                if(b===null||a===null) return "Preencha todos os campos.";
+                return `Área: ${fmt((b*a)/2)}`;
+            }
+            case "triangleHeron": {
+                const a=g("ladoA"), b=g("ladoB"), c=g("ladoC");
+                if(a===null||b===null||c===null) return "Preencha todos os campos.";
+                const p=(a+b+c)/2;
+                const area=Math.sqrt(p*(p-a)*(p-b)*(p-c));
+                return `Área (Heron): ${fmt(area)}`;
+            }
+            case "trapezoid": {
+                const B=g("baseMaior"), b=g("baseMenor"), a=g("altura");
+                if(B===null||b===null||a===null) return "Preencha todos os campos.";
+                return `Área: ${fmt(((B+b)*a)/2)}`;
+            }
+            case "rhombus": {
+                const d1=g("d1"), d2=g("d2");
+                if(d1===null||d2===null) return "Preencha todos os campos.";
+                return `Área: ${fmt((d1*d2)/2)}\nLado: ${fmt(Math.sqrt((d1/2)**2+(d2/2)**2))}`;
+            }
+            case "regularPolygon": {
+                const n=g("lados"), l=g("lado");
+                if(n===null||l===null||n<3) return "Informe nº de lados ≥ 3.";
+                const ap=l/(2*Math.tan(Math.PI/n));
+                return `Área: ${fmt((n*l*ap)/2)}\nPerímetro: ${fmt(n*l)}`;
+            }
+            case "ellipseArea": {
+                const a=g("semiEixoA"), b=g("semiEixoB");
+                if(a===null||b===null) return "Preencha todos os campos.";
+                return `Área: ${fmt(Math.PI*a*b)}`;
+            }
+            case "sectorArea": {
+                const r=g("raio"), ang=g("angulo");
+                if(r===null||ang===null) return "Preencha todos os campos.";
+                const rad=ang*Math.PI/180;
+                return `Área: ${fmt((rad*r*r)/2)}\nArco: ${fmt(r*rad)}`;
+            }
+            case "sphereVol": {
+                const r=g("raio");
+                if(r===null) return "Preencha o campo.";
+                return `Volume: ${fmt((4/3)*Math.PI*r**3)}\nÁrea: ${fmt(4*Math.PI*r*r)}`;
+            }
+            case "cubeVol": {
+                const a=g("aresta");
+                if(a===null) return "Preencha o campo.";
+                return `Volume: ${fmt(a**3)}\nÁrea: ${fmt(6*a*a)}\nDiagonal: ${fmt(a*Math.sqrt(3))}`;
+            }
+            case "boxVol": {
+                const c=g("comprimento"), l=g("largura"), a=g("altura");
+                if(c===null||l===null||a===null) return "Preencha todos os campos.";
+                return `Volume: ${fmt(c*l*a)}\nÁrea: ${fmt(2*(c*l+c*a+l*a))}`;
+            }
+            case "cylinderVol": {
+                const r=g("raio"), a=g("altura");
+                if(r===null||a===null) return "Preencha todos os campos.";
+                return `Volume: ${fmt(Math.PI*r*r*a)}\nÁrea: ${fmt(2*Math.PI*r*(r+a))}`;
+            }
+            case "coneVol": {
+                const r=g("raio"), a=g("altura");
+                if(r===null||a===null) return "Preencha todos os campos.";
+                const g_=Math.sqrt(r*r+a*a);
+                return `Volume: ${fmt((1/3)*Math.PI*r*r*a)}\nGeratriz: ${fmt(g_)}\nÁrea: ${fmt(Math.PI*r*(r+g_))}`;
+            }
+            case "pyramidVol": {
+                const l=g("ladoBase"), a=g("altura");
+                if(l===null||a===null) return "Preencha todos os campos.";
+                return `Volume: ${fmt((1/3)*l*l*a)}`;
+            }
+            case "torusVol": {
+                const R=g("R"), r=g("r");
+                if(R===null||r===null) return "Preencha todos os campos.";
+                return `Volume: ${fmt(2*Math.PI*Math.PI*R*r*r)}\nÁrea: ${fmt(4*Math.PI*Math.PI*R*r)}`;
+            }
+            default: return "Geometria inválida.";
+        }
+    }
+
+    // ── sub-motor de engenharia ──────────────────────────────────
+
+    function calculateEngineering(op) {
+        const g=(n)=>rn(n);
+        switch(op){
+            case "tensao": {
+                const f=g("forca"), a=g("area");
+                if(f===null||a===null||a===0) return "Área ≠ 0.";
+                return `Tensão σ: ${fmt(f/a)} Pa`;
+            }
+            case "deformacao": {
+                const d=g("deltaL"), L=g("L");
+                if(d===null||L===null||L===0) return "L ≠ 0.";
+                return `Deformação ε: ${fmt(d/L)} (adimensional)`;
+            }
+            case "modElastico": {
+                const t=g("tensao"), d=g("deformacao");
+                if(t===null||d===null||d===0) return "Deformação ≠ 0.";
+                return `Módulo E: ${fmt(t/d)} Pa`;
+            }
+            case "momentoFletor": {
+                const M=g("momento"), c=g("c"), I=g("inercia");
+                if(M===null||c===null||I===null||I===0) return "I ≠ 0.";
+                return `σ = M·c/I: ${fmt(M*c/I)} Pa`;
+            }
+            case "cisalhamento": {
+                const f=g("forca"), a=g("area");
+                if(f===null||a===null||a===0) return "Área ≠ 0.";
+                return `τ: ${fmt(f/a)} Pa`;
+            }
+            case "torque": {
+                const T=g("torque"), r=g("raio"), J=g("J");
+                if(T===null||r===null||J===null||J===0) return "J ≠ 0.";
+                return `τ = T·r/J: ${fmt(T*r/J)} Pa`;
+            }
+            case "flambagem": {
+                const E=g("E"), I=g("I"), Le=g("Le");
+                if(E===null||I===null||Le===null||Le===0) return "Le ≠ 0.";
+                return `Carga crítica: ${fmt((Math.PI*Math.PI*E*I)/(Le*Le))} N`;
+            }
+            case "calorQ": {
+                const m=g("massa"), c=g("calor_esp"), dT=g("deltaT");
+                if(m===null||c===null||dT===null) return "Preencha todos os campos.";
+                return `Q = m·c·ΔT: ${fmt(m*c*dT)} J`;
+            }
+            case "dilatacao": {
+                const al=g("alfa"), L=g("L"), dT=g("deltaT");
+                if(al===null||L===null||dT===null) return "Preencha todos os campos.";
+                return `ΔL = α·L·ΔT: ${fmt(al*L*dT)} m`;
+            }
+            case "rendimento": {
+                const u=g("potUtil"), t=g("potTotal");
+                if(u===null||t===null||t===0) return "Potência total ≠ 0.";
+                return `Rendimento: ${fmt((u/t)*100)} %`;
+            }
+            case "vazao": {
+                const a=g("area"), v=g("velocidade");
+                if(a===null||v===null) return "Preencha todos os campos.";
+                return `Vazão Q = A·v: ${fmt(a*v)} m³/s`;
+            }
+            case "reynolds": {
+                const rho=g("rho"), v=g("v"), D=g("D"), mu=g("mu");
+                if(rho===null||v===null||D===null||mu===null||mu===0) return "Viscosidade ≠ 0.";
+                return `Re = ρ·v·D/μ: ${fmt((rho*v*D)/mu)}`;
+            }
+            case "bernoulli": {
+                const p1=g("p1"), rho=g("rho"), v1=g("v1"), v2=g("v2");
+                if(p1===null||rho===null||v1===null||v2===null) return "Preencha todos os campos.";
+                return `p2 ≈ p1 + ½·ρ·(v1²−v2²): ${fmt(p1+0.5*rho*(v1*v1-v2*v2))} Pa`;
+            }
+            case "pressHidro": {
+                const rho=g("rho"), h=g("h");
+                if(rho===null||h===null) return "Preencha todos os campos.";
+                return `p = ρ·g·h: ${fmt(rho*9.80665*h)} Pa`;
+            }
+            case "capacitor": {
+                const C=g("C"), V=g("V");
+                if(C===null||V===null) return "Preencha todos os campos.";
+                return `E = ½·C·V²: ${fmt(0.5*C*V*V)} J`;
+            }
+            case "indutor": {
+                const L=g("L_ind"), I=g("I");
+                if(L===null||I===null) return "Preencha todos os campos.";
+                return `E = ½·L·I²: ${fmt(0.5*L*I*I)} J`;
+            }
+            case "reatorLC": {
+                const L=g("L_ind"), C=g("C");
+                if(L===null||C===null||L===0||C===0) return "L e C ≠ 0.";
+                return `f₀ = 1/(2π√LC): ${fmt(1/(2*Math.PI*Math.sqrt(L*C)))} Hz`;
+            }
+            case "divisorTensao": {
+                const Vin=g("Vin"), R1=g("R1"), R2=g("R2");
+                if(Vin===null||R1===null||R2===null) return "Preencha todos os campos.";
+                return `Vout = Vin·R2/(R1+R2): ${fmt(Vin*R2/(R1+R2))} V`;
+            }
+            case "cargaDistribuida": {
+                const w=g("w"), L=g("L");
+                if(w===null||L===null) return "Preencha todos os campos.";
+                return `Reações: R = R = ${fmt((w*L)/2)} N (cada apoio)`;
+            }
+            case "momentoMax": {
+                const w=g("w"), L=g("L");
+                if(w===null||L===null) return "Preencha todos os campos.";
+                return `Mmáx = w·L²/8: ${fmt((w*L*L)/8)} N·m`;
+            }
+            case "inerciRetangulo": {
+                const b=g("base"), h=g("altura");
+                if(b===null||h===null) return "Preencha todos os campos.";
+                return `I = b·h³/12: ${fmt((b*h**3)/12)} m⁴`;
+            }
+            case "inerciCirculo": {
+                const r=g("raio");
+                if(r===null) return "Preencha o campo.";
+                return `I = π·r⁴/4: ${fmt((Math.PI*r**4)/4)} m⁴`;
+            }
+            case "convTemp": {
+                const v=g("valor"), d=g("de");
+                if(v===null||d===null) return "Preencha todos os campos.";
+                if(d===0) return `${v} °C = ${fmt(v*9/5+32)} °F = ${fmt(v+273.15)} K`;
+                if(d===1) return `${v} °F = ${fmt((v-32)*5/9)} °C = ${fmt((v-32)*5/9+273.15)} K`;
+                if(d===2) return `${v} K = ${fmt(v-273.15)} °C = ${fmt((v-273.15)*9/5+32)} °F`;
+                return "De: 0=°C  1=°F  2=K";
+            }
+            case "convPressao": {
+                const v=g("valor");
+                if(v===null) return "Preencha o campo.";
+                return `${fmt(v)} Pa\n= ${fmt(v/1000)} kPa\n= ${fmt(v/1e5)} bar\n= ${fmt(v/101325)} atm\n= ${fmt(v/6894.76)} psi`;
+            }
+            default: return "Engenharia inválida.";
+        }
+    }
+
+    // ── dispatcher principal ──────────────────────────────────────
+
+    function calculate() {
+        const type = calcType.value;
+        const subtypeKey = {
+            finance:     "financeType",
+            electrical:  "electricalType",
+            physics:     "physicsType",
+            progression: "progressionType",
+            geometry:    "geometryType",
+            engineering: "engineeringType"
+        };
+        const sub = subtypeKey[type];
+        const op = sub ? (form.elements[sub]?.value || "") : "";
+
+        let result;
+        // get operation description for history
+        let opDesc = labels[type] || type;
+        if (op) {
+            const optMap = {
+                finance: financeOptions,
+                electrical: electricalOptions,
+                physics: physicsOptions,
+                progression: progressionOptions,
+                geometry: geometryOptions,
+                engineering: engineeringOptions
+            };
+            const map = optMap[type];
+            if (map && map[op]) opDesc = map[op].title;
+        }
+
+        switch (type) {
+            case "sum": {
+                const raw = getFormValue("numbers");
+                const nums = parseNumbers(raw);
+                if (nums.length < 2) result = "Informe ao menos 2 números.";
+                else result = `Soma: ${fmt(nums.reduce((a,v)=>a+v,0))}`;
+                break;
+            }
+            case "subtract": {
+                const raw = getFormValue("numbers");
+                const nums = parseNumbers(raw);
+                if (nums.length < 2) result = "Informe ao menos 2 números.";
+                else result = `Subtração: ${fmt(nums.reduce((a,v)=>a-v))}`;
+                break;
+            }
+            case "multiply": {
+                const a=rn("value1"), b=rn("value2");
+                if(a===null||b===null) result = "Preencha ambos os campos.";
+                else result = `Multiplicação: ${fmt(a*b)}`;
+                break;
+            }
+            case "divide": {
+                const a=rn("value1"), b=rn("value2");
+                if(a===null||b===null) result = "Preencha ambos os campos.";
+                else if(b===0) result = "Divisão por zero!";
+                else result = `Divisão: ${fmt(a/b)}`;
+                break;
             }
             case "bhaskara": {
-                const a=rn("a"), b=rn("b"), c=rn("c");
-                if ([a,b,c].some(v=>v===null)) return "Preencha todos os campos.";
-                if (a===0) return "Coeficiente A ≠ 0.";
-                const delta = b*b - 4*a*c;
-                if (delta < 0) return `Δ = ${fmt(delta)} — não há raízes reais.`;
-                const x1=(-b+Math.sqrt(delta))/(2*a), x2=(-b-Math.sqrt(delta))/(2*a);
-                return `Δ = ${fmt(delta)}\nx1 = ${fmt(x1)}\nx2 = ${fmt(x2)}`;
+                const a=rn("a"), b=rn("b"), c_=rn("c");
+                if(a===null||b===null||c_===null) result = "Preencha todos os coeficientes.";
+                else if(a===0) result = "A não pode ser 0 (equação de 1º grau).";
+                else {
+                    const delta = b*b - 4*a*c_;
+                    if(delta < 0) result = "Δ < 0 — sem raízes reais.";
+                    else {
+                        const x1 = (-b + Math.sqrt(delta))/(2*a);
+                        const x2 = (-b - Math.sqrt(delta))/(2*a);
+                        result = `Δ = ${fmt(delta)}\nx' = ${fmt(x1)}\nx'' = ${fmt(x2)}`;
+                    }
+                }
+                break;
             }
             case "hypotenuse": {
                 const c1=rn("cateto1"), c2=rn("cateto2");
-                if (c1===null||c2===null) return "Preencha os dois catetos.";
-                return `Hipotenusa: ${fmt(Math.sqrt(c1*c1+c2*c2))}`;
+                if(c1===null||c2===null) result = "Preencha ambos os catetos.";
+                else result = `Hipotenusa: ${fmt(Math.sqrt(c1*c1+c2*c2))}`;
+                break;
             }
             case "log": {
-                const baseRaw = String(getFormValue("base")).trim().toLowerCase();
-                const logaritmando = rn("logaritmando");
-                if (logaritmando===null || logaritmando<=0) return "Logaritmando deve ser > 0.";
-                let result;
-                if (baseRaw === "e") result = Math.log(logaritmando);
+                const base = getFormValue("base");
+                const val = rn("logaritmando");
+                if(val===null||val<=0) result = "Logaritmando > 0.";
+                else if(base==="e") result = `ln(${fmt(val)}) = ${fmt(Math.log(val))}`;
                 else {
-                    const base = Number(baseRaw);
-                    if (Number.isNaN(base) || base<=0 || base===1) return "Base inválida.";
-                    result = Math.log(logaritmando)/Math.log(base);
+                    const b = Number(base);
+                    if(Number.isNaN(b)||b<=0||b===1) result = "Base inválida.";
+                    else result = `log_{${base}}(${fmt(val)}) = ${fmt(Math.log(val)/Math.log(b))}`;
                 }
-                return `Logaritmo: ${fmt(result)}`;
+                break;
             }
-            default: return "Operação inválida.";
+            case "finance":     result = calculateFinance(op); break;
+            case "electrical":  result = calculateElectrical(op); break;
+            case "physics":     result = calculatePhysics(op); break;
+            case "progression": result = calculateProgression(op); break;
+            case "geometry":    result = calculateGeometry(op); break;
+            case "engineering": result = calculateEngineering(op); break;
+            default: result = "Tipo de cálculo desconhecido.";
         }
+
+        // Save to localStorage history
+        saveToHistory(opDesc, result);
+
+        return result;
     }
 
-    function calculateGeometry(op) {
-        const cfg = geometryOptions[op];
-        const vals = Object.fromEntries(cfg.fields.map(f=>[f.name, rn(f.name)]));
-        if (Object.values(vals).some(v=>v===null)) return "Preencha todos os campos.";
-        const {raio, lado, base, altura, ladoA, ladoB, ladoC, baseMaior, baseMenor,
-               d1, d2, lados, semiEixoA, semiEixoB, angulo, aresta, comprimento,
-               largura, ladoBase, R, r} = vals;
-        switch(op) {
-            case "circleArea":    return `Área: ${fmt(Math.PI*raio**2)}\nCircunferência: ${fmt(2*Math.PI*raio)}`;
-            case "squareArea":    return `Área: ${fmt(lado**2)}\nPerímetro: ${fmt(4*lado)}\nDiagonal: ${fmt(lado*Math.SQRT2)}`;
-            case "rectArea":      return `Área: ${fmt(base*altura)}\nPerímetro: ${fmt(2*(base+altura))}\nDiagonal: ${fmt(Math.sqrt(base**2+altura**2))}`;
-            case "triangleArea":  return `Área: ${fmt((base*altura)/2)}`;
-            case "triangleHeron": { const s=(ladoA+ladoB+ladoC)/2; const areaSq=s*(s-ladoA)*(s-ladoB)*(s-ladoC); if(areaSq<=0) return "Lados não formam um triângulo válido."; return `Área: ${fmt(Math.sqrt(areaSq))}\nPerímetro: ${fmt(ladoA+ladoB+ladoC)}`; }
-            case "trapezoid":     return `Área: ${fmt(((baseMaior+baseMenor)*altura)/2)}`;
-            case "rhombus":       return `Área: ${fmt((d1*d2)/2)}\nLado: ${fmt(Math.sqrt((d1/2)**2+(d2/2)**2))}`;
-            case "regularPolygon":{ const perimetro=lados*lado; const apotema=lado/(2*Math.tan(Math.PI/lados)); return `Perímetro: ${fmt(perimetro)}\nÁrea: ${fmt((perimetro*apotema)/2)}`; }
-            case "ellipseArea":   return `Área: ${fmt(Math.PI*semiEixoA*semiEixoB)}`;
-            case "sectorArea":    { const rad=(angulo*Math.PI)/180; return `Área do setor: ${fmt(0.5*raio**2*rad)}\nComprimento do arco: ${fmt(raio*rad)}`; }
-            case "sphereVol":     return `Volume: ${fmt((4/3)*Math.PI*raio**3)}\nÁrea: ${fmt(4*Math.PI*raio**2)}`;
-            case "cubeVol":       return `Volume: ${fmt(aresta**3)}\nÁrea: ${fmt(6*aresta**2)}\nDiagonal: ${fmt(aresta*Math.sqrt(3))}`;
-            case "boxVol":        return `Volume: ${fmt(comprimento*largura*altura)}\nÁrea: ${fmt(2*(comprimento*largura+comprimento*altura+largura*altura))}`;
-            case "cylinderVol":   return `Volume: ${fmt(Math.PI*raio**2*altura)}\nÁrea: ${fmt(2*Math.PI*raio*(raio+altura))}`;
-            case "coneVol":       { const gerat=Math.sqrt(raio**2+altura**2); return `Volume: ${fmt((1/3)*Math.PI*raio**2*altura)}\nGeratriz: ${fmt(gerat)}\nÁrea: ${fmt(Math.PI*raio*(raio+gerat))}`; }
-            case "pyramidVol":    return `Volume: ${fmt((ladoBase**2*altura)/3)}`;
-            case "torusVol":      return `Volume: ${fmt(2*Math.PI**2*R*r**2)}\nÁrea: ${fmt(4*Math.PI**2*R*r)}`;
-            default: return "Fórmula geométrica inválida.";
-        }
-    }
+    // ── sistema de histórico (localStorage) ──────────────────────
 
-    function calculateEngineering(op) {
-        const cfg = engineeringOptions[op];
-        const vals = Object.fromEntries(cfg.fields.map(f=>[f.name, rn(f.name)]));
-        if (Object.values(vals).some(v=>v===null)) return "Preencha todos os campos.";
-        switch(op) {
-            case "tensao":          return `Tensão: ${fmt(vals.forca/vals.area)} Pa`;
-            case "deformacao":      return `Deformação: ${fmt(vals.deltaL/vals.L)}`;
-            case "modElastico":     return `Módulo de Elasticidade: ${fmt(vals.tensao/vals.deformacao)} Pa`;
-            case "momentoFletor":   return `Tensão de Flexão: ${fmt((vals.momento*vals.c)/vals.inercia)} Pa`;
-            case "cisalhamento":    return `Tensão de Cisalhamento: ${fmt(vals.forca/vals.area)} Pa`;
-            case "torque":          return `Tensão de Torção: ${fmt((vals.torque*vals.raio)/vals.J)} Pa`;
-            case "flambagem":       if(vals.Le===0) return "Comprimento efetivo ≠ 0."; return `Carga Crítica: ${fmt((Math.PI**2*vals.E*vals.I)/(vals.Le**2))} N`;
-            case "calorQ":          return `Calor: ${fmt(vals.massa*vals.calor_esp*vals.deltaT)} J`;
-            case "dilatacao":       return `Dilatação: ${fmt(vals.alfa*vals.L*vals.deltaT)} m`;
-            case "rendimento":      if(vals.potTotal===0) return "Potência total ≠ 0."; return `Rendimento: ${fmt((vals.potUtil/vals.potTotal)*100)} %`;
-            case "vazao":           return `Vazão: ${fmt(vals.area*vals.velocidade)} m³/s`;
-            case "reynolds":        if(vals.mu===0) return "Viscosidade ≠ 0."; return `Número de Reynolds: ${fmt((vals.rho*vals.v*vals.D)/vals.mu)}`;
-            case "bernoulli":       { const p2=vals.p1+0.5*vals.rho*(vals.v1**2-vals.v2**2); return `Pressão 2: ${fmt(p2)} Pa`; }
-            case "pressHidro":      return `Pressão Hidrostática: ${fmt(vals.rho*9.81*vals.h)} Pa`;
-            case "capacitor":       return `Energia: ${fmt(0.5*vals.C*vals.V**2)} J`;
-            case "indutor":         return `Energia: ${fmt(0.5*vals.L_ind*vals.I**2)} J`;
-            case "reatorLC":        if(vals.L_ind===0||vals.C===0) return "Indutância e capacitância ≠ 0."; return `Frequência de Ressonância: ${fmt(1/(2*Math.PI*Math.sqrt(vals.L_ind*vals.C)))} Hz`;
-            case "divisorTensao":   if((vals.R1+vals.R2)===0) return "R1+R2 ≠ 0."; return `Tensão de saída: ${fmt(vals.Vin*(vals.R2/(vals.R1+vals.R2)))} V`;
-            case "cargaDistribuida":return `Reação em cada apoio: ${fmt((vals.w*vals.L)/2)} N`;
-            case "momentoMax":      return `Momento Máximo: ${fmt((vals.w*vals.L**2)/8)} N·m`;
-            case "inerciRetangulo": return `Momento de Inércia: ${fmt((vals.base*vals.altura**3)/12)} m⁴`;
-            case "inerciCirculo":   return `Momento de Inércia: ${fmt((Math.PI*vals.raio**4)/4)} m⁴`;
-            case "convTemp": {
-                const {valor, de} = vals; let celsius;
-                if (de===0) celsius=valor; else if(de===1) celsius=(valor-32)*5/9; else if(de===2) celsius=valor-273.15; else return "Origem inválida (0, 1 ou 2).";
-                return `°C: ${fmt(celsius)}\n°F: ${fmt(celsius*9/5+32)}\nK: ${fmt(celsius+273.15)}`;
-            }
-            case "convPressao": { const pa=vals.valor; return `atm: ${fmt(pa/101325)}\nbar: ${fmt(pa/100000)}\nmmHg: ${fmt(pa/133.322)}\npsi: ${fmt(pa/6894.76)}`; }
-            default: return "Fórmula de engenharia inválida.";
-        }
-    }
+    const HISTORY_KEY = "calcHistory";
 
-    // ── dispatcher principal ──────────────────────────────────────────────────
-
-    function calculate() {
+    function loadHistory() {
         try {
-            const type = calcType.value;
-            switch(type) {
-                case "sum": case "subtract": case "multiply": case "divide":
-                case "bhaskara": case "hypotenuse": case "log":
-                    return calculateSimple(type);
-                case "finance":     return calculateFinance(form.elements["financeType"]?.value || Object.keys(financeOptions)[0]);
-                case "electrical":  return calculateElectrical(form.elements["electricalType"]?.value || Object.keys(electricalOptions)[0]);
-                case "physics":     return calculatePhysics(form.elements["physicsType"]?.value || Object.keys(physicsOptions)[0]);
-                case "progression": return calculateProgression(form.elements["progressionType"]?.value || Object.keys(progressionOptions)[0]);
-                case "geometry":    return calculateGeometry(form.elements["geometryType"]?.value || Object.keys(geometryOptions)[0]);
-                case "engineering": return calculateEngineering(form.elements["engineeringType"]?.value || Object.keys(engineeringOptions)[0]);
-                default: return "Operação inválida.";
-            }
-        } catch (error) {
-            console.error(error);
-            return "Erro ao calcular. Verifique os valores informados.";
-        }
+            const data = localStorage.getItem(HISTORY_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch { return []; }
     }
+
+    function saveToHistory(type, result) {
+        const history = loadHistory();
+        const entry = {
+            id: Date.now(),
+            date: new Date().toLocaleString("pt-BR"),
+            type: type,
+            result: result
+        };
+        history.unshift(entry); // most recent first
+        // keep max 100 entries
+        if (history.length > 100) history.length = 100;
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const listEl = document.getElementById("history-list");
+        if (!listEl) return;
+        const history = loadHistory();
+        if (history.length === 0) {
+            listEl.innerHTML = '<p class="history-empty">Nenhum cálculo realizado ainda.</p>';
+            return;
+        }
+        listEl.innerHTML = history.map(e => `
+            <div class="history-item">
+                <div class="h-date">${e.date}</div>
+                <div class="h-type">${escapeHtml(e.type)}</div>
+                <div class="h-result">${escapeHtml(e.result)}</div>
+            </div>
+        `).join("");
+    }
+
+    function clearHistory() {
+        localStorage.removeItem(HISTORY_KEY);
+        renderHistory();
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // ── event listeners ──────────────────────────────────────────
 
     calcType.addEventListener("change", renderFields);
     form.addEventListener("change", (e) => {
         if(["financeType","electricalType","physicsType","progressionType","geometryType","engineeringType"].includes(e.target.name)) renderFields();
     });
-    form.addEventListener("submit", (e) => { e.preventDefault(); resultBox.textContent = calculate(); });
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        resultBox.textContent = calculate();
+    });
+
+    // clear history button
+    document.addEventListener("click", (e) => {
+        if (e.target.id === "clear-history") clearHistory();
+    });
+
+    // load history on page load
+    renderHistory();
     renderFields();
 });
