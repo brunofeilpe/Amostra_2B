@@ -183,6 +183,31 @@ h1 {
     color: #d8f7d8;
 }
 
+.chart-card {
+    padding: 18px;
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    margin-top: 18px;
+}
+
+.chart-card h2 {
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 1.05rem;
+    color: #ffffff;
+}
+
+.chart-wrap {
+    position: relative;
+    height: 280px;
+    background: #101010;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 12px;
+}
+
 .history-card {
     padding: 18px;
     background: var(--panel-2);
@@ -311,5 +336,9 @@ h1 {
 
     .history-list {
         max-height: 250px;
+    }
+
+    .chart-wrap {
+        height: 220px;
     }
 }

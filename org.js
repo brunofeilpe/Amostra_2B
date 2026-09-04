@@ -35,6 +35,185 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(`[code ${code}] ${CONSOLE_CODES[code]}${extra ? " — " + extra : ""}`);
     }
 
+    // ── infraestrutura do gráfico (Chart.js) ────────────────────────────────────
+    // chartCard/chartCanvas/chartTitleEl são opcionais: se o HTML não tiver esses
+    // elementos, ou se o Chart.js não tiver carregado, o gráfico simplesmente não
+    // aparece — o resto da calculadora continua funcionando normalmente.
+    const chartCard = document.getElementById("chart-card");
+    const chartCanvas = document.getElementById("result-chart");
+    const chartTitleEl = document.getElementById("chart-title");
+    let chartInstance = null;
+
+    // Esconde e destrói o gráfico atual (chamado sempre que o tipo de cálculo
+    // muda ou quando o cálculo em questão não tem gráfico associado)
+    function hideChart() {
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+        if (chartCard) chartCard.hidden = true;
+    }
+
+    // Paleta de cores reaproveitada do CSS (second.css), pra o gráfico combinar com o tema escuro
+    function chartTheme() {
+        return { grid: "#333333", tick: "#bcbcbc", accent: "#f2c94c", accent2: "#ff7a00", green: "#7ef0a0" };
+    }
+
+    function baseScales() {
+        const t = chartTheme();
+        return {
+            x: { grid: { color: t.grid }, ticks: { color: t.tick } },
+            y: { grid: { color: t.grid }, ticks: { color: t.tick } }
+        };
+    }
+
+    function baseLegend() {
+        return { labels: { color: chartTheme().tick } };
+    }
+
+    // Desenha (ou redesenha) o gráfico com a configuração do Chart.js recebida
+    function drawChart(title, config) {
+        if (!chartCard || !chartCanvas || typeof Chart === "undefined") return;
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+        if (chartTitleEl) chartTitleEl.textContent = title;
+        chartCard.hidden = false;
+        chartInstance = new Chart(chartCanvas.getContext("2d"), config);
+    }
+
+    // ── gráfico: Bhaskara — desenha a parábola e marca as raízes reais, se houver
+    function chartBhaskara(a, b, c, delta) {
+        const t = chartTheme();
+        const vertexX = -b / (2 * a);
+        const spread = delta >= 0
+            ? Math.max(Math.abs(Math.sqrt(delta) / (2 * a)) * 2.5, 1)
+            : Math.max(Math.abs(vertexX), 5);
+        const min = vertexX - spread, max = vertexX + spread;
+        const steps = 60;
+        const points = [];
+        for (let i = 0; i <= steps; i++) {
+            const x = min + ((max - min) * i) / steps;
+            points.push({ x, y: a * x * x + b * x + c });
+        }
+        const datasets = [{
+            label: "f(x) = ax² + bx + c",
+            data: points, borderColor: t.accent, backgroundColor: "transparent",
+            borderWidth: 2, pointRadius: 0, tension: 0.15
+        }];
+        if (delta >= 0) {
+            const x1 = (-b + Math.sqrt(delta)) / (2 * a);
+            const x2 = (-b - Math.sqrt(delta)) / (2 * a);
+            datasets.push({
+                label: "Raízes", data: [{ x: x1, y: 0 }, { x: x2, y: 0 }],
+                borderColor: t.accent2, backgroundColor: t.accent2, pointRadius: 5, showLine: false
+            });
+        }
+        drawChart("Parábola (Bhaskara)", {
+            type: "line",
+            data: { datasets },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { x: { type: "linear", ...baseScales().x }, y: baseScales().y },
+                plugins: { legend: baseLegend() }
+            }
+        });
+    }
+
+    // ── gráfico: Progressões (PA/PG) — sequência de termos, ou soma parcial x limite (PG infinita)
+    function chartProgression(op, a1, r, q, n) {
+        const t = chartTheme();
+        if (a1 === null) { hideChart(); return; }
+        if (op === "pgInfinite") {
+            if (q === null || Math.abs(q) >= 1) { hideChart(); return; }
+            const limit = a1 / (1 - q);
+            const count = 20;
+            let sum = 0;
+            const points = [];
+            for (let k = 1; k <= count; k++) { sum += a1 * q ** (k - 1); points.push({ x: k, y: sum }); }
+            drawChart("PG — Soma parcial x Limite", {
+                type: "line",
+                data: { datasets: [
+                    { label: "Soma parcial", data: points, borderColor: t.accent, backgroundColor: "transparent", borderWidth: 2, pointRadius: 2, tension: 0.15 },
+                    { label: "Limite", data: [{ x: 1, y: limit }, { x: count, y: limit }], borderColor: t.accent2, borderDash: [6, 4], borderWidth: 2, pointRadius: 0 }
+                ] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: "linear", ...baseScales().x }, y: baseScales().y }, plugins: { legend: baseLegend() } }
+            });
+            return;
+        }
+        const isPG = op === "pgTerm" || op === "pgSum";
+        const ratio = isPG ? q : r;
+        if (ratio === null || n === null || n < 1) { hideChart(); return; }
+        const count = Math.min(Math.floor(n), 100);
+        const points = [];
+        for (let k = 1; k <= count; k++) points.push({ x: k, y: isPG ? a1 * ratio ** (k - 1) : a1 + (k - 1) * ratio });
+        drawChart(isPG ? "Progressão Geométrica" : "Progressão Aritmética", {
+            type: "line",
+            data: { datasets: [{ label: "Termos", data: points, borderColor: t.accent, backgroundColor: "transparent", borderWidth: 2, pointRadius: count <= 30 ? 3 : 0, tension: 0.1 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: "linear", ...baseScales().x }, y: baseScales().y }, plugins: { legend: baseLegend() } }
+        });
+    }
+
+    // ── gráfico: crescimento financeiro (juros simples x compostos)
+    function chartFinanceGrowth(op, capital, taxa, tempo) {
+        if (!tempo || tempo <= 0) { hideChart(); return; }
+        const t = chartTheme();
+        const isCompound = op === "JC" || op === "MC";
+        const steps = 30;
+        const points = [];
+        for (let i = 0; i <= steps; i++) {
+            const time = (tempo * i) / steps;
+            points.push({ x: time, y: isCompound ? capital * (1 + taxa) ** time : capital * (1 + taxa * time) });
+        }
+        drawChart(isCompound ? "Crescimento — Juros Compostos" : "Crescimento — Juros Simples", {
+            type: "line",
+            data: { datasets: [{ label: "Montante", data: points, borderColor: t.green, backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, tension: 0.1 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    x: { type: "linear", ...baseScales().x, title: { display: true, text: "Tempo", color: t.tick } },
+                    y: { ...baseScales().y, title: { display: true, text: "Montante", color: t.tick } }
+                },
+                plugins: { legend: baseLegend() }
+            }
+        });
+    }
+
+    // ── gráfico: movimento (física) — posição x tempo (MRU) ou velocidade x tempo (MRUV)
+    function chartPhysicsMotion(op, params) {
+        const t = chartTheme();
+        if (op === "velocity") {
+            const { d, time } = params;
+            if (d === null || !time) { hideChart(); return; }
+            const points = [{ x: 0, y: 0 }, { x: time, y: (d / time) * time }];
+            drawChart("Posição x Tempo (MRU)", {
+                type: "line",
+                data: { datasets: [{ label: "Posição (m)", data: points, borderColor: t.accent, backgroundColor: "transparent", borderWidth: 2, pointRadius: 3, tension: 0 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { type: "linear", ...baseScales().x, title: { display: true, text: "Tempo (s)", color: t.tick } },
+                        y: { ...baseScales().y, title: { display: true, text: "Posição (m)", color: t.tick } }
+                    },
+                    plugins: { legend: baseLegend() }
+                }
+            });
+            return;
+        }
+        if (op === "acceleration") {
+            const { vi, vf, time } = params;
+            if (vi === null || vf === null || !time) { hideChart(); return; }
+            const points = [{ x: 0, y: vi }, { x: time, y: vf }];
+            drawChart("Velocidade x Tempo (MRUV)", {
+                type: "line",
+                data: { datasets: [{ label: "Velocidade (m/s)", data: points, borderColor: t.accent2, backgroundColor: "transparent", borderWidth: 2, pointRadius: 3, tension: 0 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { type: "linear", ...baseScales().x, title: { display: true, text: "Tempo (s)", color: t.tick } },
+                        y: { ...baseScales().y, title: { display: true, text: "Velocidade (m/s)", color: t.tick } }
+                    },
+                    plugins: { legend: baseLegend() }
+                }
+            });
+        }
+    }
+
     // Objeto de mapeamento que associa as chaves internas aos nomes legíveis de cada categoria
     const labels = {
         sum: "Soma", subtract: "Subtração", multiply: "Multiplicação", divide: "Divisão",
@@ -180,6 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderFields() {
         resultBox.textContent = "";
+        hideChart();
         const type = calcType.value;
         subtitle.textContent = labels[type] || "Calculadora";
 
@@ -227,6 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const {capital,taxa,tempo,juros,nominal,valor,futuro,presente,parcelas,
                ganho,custo,fixos,preco,variavel,markup,receita,cmv,
                valorInicial,valorResidual,vidaUtil} = vals;
+        if (["JS","MS","JC","MC"].includes(op)) chartFinanceGrowth(op, capital, taxa, tempo);
         switch(op) {
             case "JS":     return `Juros: ${fmt(capital*taxa*tempo)}`;
             case "MS":     return `Montante: ${fmt(capital*(1+taxa*tempo))}`;
@@ -279,8 +460,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function calculatePhysics(op) {
         const g=(n)=>rn(n);
         switch(op){
-            case "velocity":     { const d=g("distancia"),t=g("tempo");           if(t===0) return "Tempo ≠ 0."; return `Velocidade média: ${fmt(d/t)} m/s`; }
-            case "acceleration": { const vi=g("velocidadeInicial"),vf=g("velocidadeFinal"),t=g("tempo"); if(t===0) return "Tempo ≠ 0."; return `Aceleração: ${fmt((vf-vi)/t)} m/s²`; }
+            case "velocity":     { const d=g("distancia"),t=g("tempo");           if(t===0) return "Tempo ≠ 0."; chartPhysicsMotion("velocity", {d, time:t}); return `Velocidade média: ${fmt(d/t)} m/s`; }
+            case "acceleration": { const vi=g("velocidadeInicial"),vf=g("velocidadeFinal"),t=g("tempo"); if(t===0) return "Tempo ≠ 0."; chartPhysicsMotion("acceleration", {vi, vf, time:t}); return `Aceleração: ${fmt((vf-vi)/t)} m/s²`; }
             case "force":        { const m=g("massa"),a=g("aceleracao");           return `Força: ${fmt(m*a)} N`; }
             case "work":         { const f=g("forca"), d=g("distancia");            return `Trabalho: ${fmt(f*d)} J`; }
             case "pressure":     { const f=g("forca"),a=g("area");                 if(a===0) return "Área ≠ 0."; return `Pressão: ${fmt(f/a)} Pa`; }
@@ -293,6 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function calculateProgression(op) {
         const a1=rn("a1"),r=rn("r"),q=rn("q"),n=rn("n");
+        chartProgression(op, a1, r, q, n);
         switch(op){
             case "paTerm":     if(!n) return "N ≠ 0."; return `PA termo geral: ${fmt(a1+(n-1)*r)}`;
             case "paSum":    { if(!n) return "N ≠ 0."; const an=a1+(n-1)*r; return `PA soma: ${fmt((n*(a1+an))/2)}`; }
@@ -565,6 +747,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (map && map[op]) opDesc = map[op].title;
         }
 
+        // Por padrão nenhum gráfico é mostrado; só os tipos com gráfico associado o reativam abaixo
+        hideChart();
+
         switch (type) {
             case "sum": {
                 const raw = getFormValue("numbers");
@@ -605,6 +790,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const x2 = (-b - Math.sqrt(delta))/(2*a);
                         result = `Δ = ${fmt(delta)}\nx' = ${fmt(x1)}\nx'' = ${fmt(x2)}`;
                     }
+                    chartBhaskara(a, b, c_, delta);
                 }
                 break;
             }
@@ -727,3 +913,10 @@ document.addEventListener("DOMContentLoaded", () => {
     renderFields();
     logCode(6, "carregamento inicial da página");
 });
+// aqui está oque cada log significa
+// 1 = calculo feito / Toda vez que calculate() termina de processar (qualquer categoria)
+// 2 = Resultado salvo no histórico	/ Após o localStorage.setItem gravar a entrada
+// 3 = Histórico renderizado na tela / Após renderHistory() atualizar a lista (mesmo se vazia)
+// 4 = Histórico limpo pelo usuário / Ao clicar em "clear-history"
+// 5 = Campos dinâmicos re-renderizados / Ao trocar o tipo de cálculo ou a subcategoria (ex: mudar de "Finanças" para "Juros Compostos")
+// 6 = Script inicializado com sucesso / Ao final do carregamento da página
