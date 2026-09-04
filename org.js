@@ -19,6 +19,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    // ── sistema de logging por código no console ───────────────────────────────
+    // Cada ação relevante concluída emite um log com um código numérico fixo.
+    // O significado de cada código está descrito em CONSOLE_CODES (ver tabela
+    // enviada junto com esta alteração).
+    const CONSOLE_CODES = {
+        1: "Cálculo concluído",
+        2: "Resultado salvo no histórico",
+        3: "Histórico renderizado na tela",
+        4: "Histórico limpo pelo usuário",
+        5: "Campos dinâmicos re-renderizados (mudança de tipo/categoria)",
+        6: "Script inicializado com sucesso"
+    };
+    function logCode(code, extra = "") {
+        console.log(`[code ${code}] ${CONSOLE_CODES[code]}${extra ? " — " + extra : ""}`);
+    }
+
     // Objeto de mapeamento que associa as chaves internas aos nomes legíveis de cada categoria
     const labels = {
         sum: "Soma", subtract: "Subtração", multiply: "Multiplicação", divide: "Divisão",
@@ -146,8 +162,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Gera o código HTML para uma caixa de seleção (dropdown select) com base num array de opções
-    function selectInput(name, label, options) {
-        return `<label class="field"><span>${label}</span><select name="${name}">${options.map(o=>`<option value="${o.value}">${o.label}</option>`).join("")}</select></label>`;
+    function selectInput(name, label, options, selectedValue) {
+        return `<label class="field"><span>${label}</span><select name="${name}">${options.map(o=>`<option value="${o.value}"${o.value===selectedValue?" selected":""}>${o.label}</option>`).join("")}</select></label>`;
     }
 
     // Injeta o HTML gerado dentro do contentor de campos dinâmicos da página e anexa uma dica, se existir
@@ -156,8 +172,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Constrói um menu dropdown secundário focado nas subcategorias de uma operação
-    function buildSubSelect(name, label, options) {
-        return selectInput(name, label, Object.entries(options).map(([v,c])=>({value:v,label:c.title})));
+    function buildSubSelect(name, label, options, selectedValue) {
+        return selectInput(name, label, Object.entries(options).map(([v,c])=>({value:v,label:c.title})), selectedValue);
     }
 
     // ── renderização de campos dinâmicos ──────────────────────────────────────
@@ -184,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (f.type === "text") return textInput(f.name, f.label, "Ex: 10, 20, 30");
                 return numberInput(f.name, f.label);
             });
-            renderFieldSet([buildSubSelect(selName, labels[type], opts), ...fieldHtml].join(""), hint);
+            renderFieldSet([buildSubSelect(selName, labels[type], opts, selVal), ...fieldHtml].join(""), hint);
             return;
         }
 
@@ -622,6 +638,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Save to localStorage history
         saveToHistory(opDesc, result);
 
+        logCode(1, opDesc);
         return result;
     }
 
@@ -648,6 +665,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // keep max 100 entries
         if (history.length > 100) history.length = 100;
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        logCode(2, type);
         renderHistory();
     }
 
@@ -657,6 +675,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const history = loadHistory();
         if (history.length === 0) {
             listEl.innerHTML = '<p class="history-empty">Nenhum cálculo realizado ainda.</p>';
+            logCode(3, "0 itens");
             return;
         }
         listEl.innerHTML = history.map(e => `
@@ -666,10 +685,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="h-result">${escapeHtml(e.result)}</div>
             </div>
         `).join("");
+        logCode(3, `${history.length} ${history.length === 1 ? "item" : "itens"}`);
     }
 
     function clearHistory() {
         localStorage.removeItem(HISTORY_KEY);
+        logCode(4);
         renderHistory();
     }
 
@@ -681,9 +702,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ── event listeners ──────────────────────────────────────────
 
-    calcType.addEventListener("change", renderFields);
+    calcType.addEventListener("change", () => {
+        renderFields();
+        logCode(5, labels[calcType.value] || calcType.value);
+    });
     form.addEventListener("change", (e) => {
-        if(["financeType","electricalType","physicsType","progressionType","geometryType","engineeringType"].includes(e.target.name)) renderFields();
+        if(["financeType","electricalType","physicsType","progressionType","geometryType","engineeringType"].includes(e.target.name)) {
+            renderFields();
+            logCode(5, e.target.name);
+        }
     });
     form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -698,4 +725,5 @@ document.addEventListener("DOMContentLoaded", () => {
     // load history on page load
     renderHistory();
     renderFields();
+    logCode(6, "carregamento inicial da página");
 });
