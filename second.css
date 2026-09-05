@@ -1,3 +1,4 @@
+/* redwashere */
 :root {
     color-scheme: dark;
     --bg: #121212;
@@ -126,6 +127,35 @@ h1 {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
+}
+
+.matrix-field {
+    align-items: start;
+}
+
+.matrix-grid {
+    display: grid;
+    gap: 8px;
+    width: fit-content;
+}
+
+.matrix-grid input {
+    width: 60px;
+    height: 48px;
+    text-align: center;
+    padding: 0;
+    border-radius: 10px;
+    border: 2px solid #000;
+    background: var(--field);
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.matrix-grid input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.2);
 }
 
 .hint {
@@ -340,5 +370,10 @@ h1 {
 
     .chart-wrap {
         height: 220px;
+    }
+
+    .matrix-grid input {
+        width: 50px;
+        height: 44px;
     }
 }

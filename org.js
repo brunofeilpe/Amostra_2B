@@ -1,3 +1,4 @@
+// redwashere
 // Aguarda que todo o esqueleto HTML esteja carregado e analisado pelo navegador antes de executar o script
 document.addEventListener("DOMContentLoaded", () => {
     // Captura o elemento do formulário principal de cálculos
@@ -68,13 +69,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return { labels: { color: chartTheme().tick } };
     }
 
-    // Desenha (ou redesenha) o gráfico com a configuração do Chart.js recebida
+    // Desenha (ou redesenha) o gráfico com a configuração do Chart.js recebida.
+    // Envolvido em try/catch: se o Chart.js falhar por qualquer motivo, o gráfico
+    // só fica escondido — o resultado do cálculo e o histórico continuam funcionando normalmente.
     function drawChart(title, config) {
         if (!chartCard || !chartCanvas || typeof Chart === "undefined") return;
         if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
         if (chartTitleEl) chartTitleEl.textContent = title;
         chartCard.hidden = false;
-        chartInstance = new Chart(chartCanvas.getContext("2d"), config);
+        try {
+            chartInstance = new Chart(chartCanvas.getContext("2d"), config);
+        } catch (err) {
+            console.error("Não foi possível desenhar o gráfico:", err);
+            chartInstance = null;
+            chartCard.hidden = true;
+        }
     }
 
     // ── gráfico: Bhaskara — desenha a parábola e marca as raízes reais, se houver
@@ -214,12 +223,95 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // ── gráfico: trigonometria — curva da função no período 0°-360°, com o ângulo informado marcado
+    function chartTrig(fn, angleDeg) {
+        const t = chartTheme();
+        const steps = 72;
+        const points = [];
+        for (let i = 0; i <= steps; i++) {
+            const deg = (360 * i) / steps;
+            const rad = deg * Math.PI / 180;
+            let y;
+            if (fn === "sin") y = Math.sin(rad);
+            else if (fn === "cos") y = Math.cos(rad);
+            else { y = Math.tan(rad); if (Math.abs(y) > 10) y = null; }
+            points.push({ x: deg, y });
+        }
+        const angRad = angleDeg * Math.PI / 180;
+        const markY = fn === "sin" ? Math.sin(angRad) : fn === "cos" ? Math.cos(angRad) : Math.tan(angRad);
+        const label = fn === "sin" ? "sen(x)" : fn === "cos" ? "cos(x)" : "tan(x)";
+        drawChart(`Função ${label}`, {
+            type: "line",
+            data: { datasets: [
+                { label, data: points, borderColor: t.accent, backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, tension: 0.2, spanGaps: false },
+                { label: "Ângulo informado", data: [{ x: angleDeg, y: markY }], borderColor: t.accent2, backgroundColor: t.accent2, pointRadius: 5, showLine: false }
+            ] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { x: { type: "linear", ...baseScales().x, title: { display: true, text: "Ângulo (graus)", color: t.tick } }, y: baseScales().y },
+                plugins: { legend: baseLegend() }
+            }
+        });
+    }
+
+    // ── gráfico: estatística — barras dos valores informados com uma linha tracejada na média
+    function chartStatistics(nums, mean) {
+        const t = chartTheme();
+        drawChart("Distribuição dos Valores", {
+            type: "bar",
+            data: {
+                labels: nums.map((_, i) => String(i + 1)),
+                datasets: [
+                    { type: "bar", label: "Valores", data: nums, backgroundColor: t.accent, borderColor: t.accent, borderWidth: 1 },
+                    { type: "line", label: "Média", data: nums.map(() => mean), borderColor: t.accent2, borderDash: [6, 4], borderWidth: 2, pointRadius: 0 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: baseScales(), plugins: { legend: baseLegend() } }
+        });
+    }
     // Objeto de mapeamento que associa as chaves internas aos nomes legíveis de cada categoria
     const labels = {
         sum: "Soma", subtract: "Subtração", multiply: "Multiplicação", divide: "Divisão",
         bhaskara: "Bhaskara", hypotenuse: "Hipotenusa", electrical: "Grandezas elétricas",
         physics: "Física", progression: "Progressões matemáticas", log: "Logaritmo",
-        finance: "Cálculos financeiros", geometry: "Geometria", engineering: "Engenharia"
+        finance: "Cálculos financeiros", geometry: "Geometria", engineering: "Engenharia",
+        trigonometry: "Trigonometria", statistics: "Estatística",
+        combinatorics: "Combinatória/Probabilidade", matrices: "Matrizes"
+    };
+
+    // Suboperações de trigonometria: razões trigonométricas, leis dos senos/cossenos e conversão de ângulo
+    const trigonometryOptions = {
+        sin:          { title: "Seno",                          fields: [{name:"angulo",label:"Ângulo (graus)"}] },
+        cos:          { title: "Cosseno",                        fields: [{name:"angulo",label:"Ângulo (graus)"}] },
+        tan:          { title: "Tangente",                       fields: [{name:"angulo",label:"Ângulo (graus)"}] },
+        lawSines:     { title: "Lei dos Senos (lado desconhecido)", fields: [{name:"ladoA",label:"Lado conhecido (a)"},{name:"anguloA",label:"Ângulo oposto a 'a' (graus)"},{name:"anguloB",label:"Ângulo oposto ao lado desconhecido (graus)"}] },
+        lawCosines:   { title: "Lei dos Cossenos (lado desconhecido)", fields: [{name:"ladoB",label:"Lado b"},{name:"ladoC",label:"Lado c"},{name:"anguloA",label:"Ângulo A, entre b e c (graus)"}] },
+        convertAngle: { title: "Conversão Graus ↔ Radianos",     fields: [{name:"valor",label:"Valor"},{name:"de",label:"De: 0=graus 1=radianos"}] }
+    };
+
+    // Suboperações de estatística descritiva — todas recebem uma lista de valores separados por vírgula
+    const statisticsOptions = {
+        mean:     { title: "Média",          fields: [{name:"valores",label:"Valores",type:"text"}] },
+        median:   { title: "Mediana",        fields: [{name:"valores",label:"Valores",type:"text"}] },
+        mode:     { title: "Moda",           fields: [{name:"valores",label:"Valores",type:"text"}] },
+        stdDev:   { title: "Desvio Padrão",  fields: [{name:"valores",label:"Valores",type:"text"}] },
+        variance: { title: "Variância",      fields: [{name:"valores",label:"Valores",type:"text"}] }
+    };
+
+    // Suboperações de combinatória/probabilidade
+    const combinatoricsOptions = {
+        factorial:   { title: "Fatorial",              fields: [{name:"n",label:"n"}] },
+        permutation: { title: "Permutação (Anx)",       fields: [{name:"n",label:"n (total)"},{name:"x",label:"x (escolhidos)"}] },
+        combination: { title: "Combinação (Cnx)",       fields: [{name:"n",label:"n (total)"},{name:"x",label:"x (escolhidos)"}] }
+    };
+
+    // Suboperações de matrizes — matrizes 2x2 informadas como 4 números separados por vírgula (linha por linha),
+    // e a matriz 3x3 do determinante como 9 números
+    const matricesOptions = {
+        sum2x2:  { title: "Soma de Matrizes 2x2",           fields: [{name:"m1",label:"Matriz A",type:"matrix",size:2},{name:"m2",label:"Matriz B",type:"matrix",size:2}] },
+        mult2x2: { title: "Multiplicação de Matrizes 2x2",  fields: [{name:"m1",label:"Matriz A",type:"matrix",size:2},{name:"m2",label:"Matriz B",type:"matrix",size:2}] },
+        det2x2:  { title: "Determinante 2x2",               fields: [{name:"m1",label:"Matriz",type:"matrix",size:2}] },
+        det3x3:  { title: "Determinante 3x3",               fields: [{name:"m1",label:"Matriz",type:"matrix",size:3}] }
     };
 
     // Estrutura de dados com todas as suboperações financeiras, os seus títulos e os campos necessários
@@ -340,6 +432,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return `<label class="field"><span>${label}</span><input name="${name}" type="text" placeholder="${placeholder}"></label>`;
     }
 
+    // Gera uma grade de quadradinhos (inputs numéricos) representando uma matriz size x size.
+    // Cada célula vira um campo próprio, nomeado "<name>_0", "<name>_1", etc, em ordem de leitura (linha por linha).
+    function matrixInput(name, label, size) {
+        const cells = [];
+        for (let i = 0; i < size * size; i++) {
+            cells.push(`<input name="${name}_${i}" type="number" step="any" class="matrix-cell" aria-label="${label} — célula ${i + 1}">`);
+        }
+        return `<div class="field matrix-field"><span>${label}</span><div class="matrix-grid" style="grid-template-columns: repeat(${size}, 1fr);">${cells.join("")}</div></div>`;
+    }
+
     // Gera o código HTML para uma caixa de seleção (dropdown select) com base num array de opções
     function selectInput(name, label, options, selectedValue) {
         return `<label class="field"><span>${label}</span><select name="${name}">${options.map(o=>`<option value="${o.value}"${o.value===selectedValue?" selected":""}>${o.label}</option>`).join("")}</select></label>`;
@@ -364,12 +466,16 @@ document.addEventListener("DOMContentLoaded", () => {
         subtitle.textContent = labels[type] || "Calculadora";
 
         const subMap = {
-            finance:     ["financeType",     financeOptions,     "Use ponto decimal, ex: 0.05 para 5%."],
-            electrical:  ["electricalType",  electricalOptions,  "Para Leis de Ohm: coloque 0 no campo a calcular. Para associações: informe valores separados por vírgula."],
-            physics:     ["physicsType",     physicsOptions,     "Preencha todos os campos com as unidades indicadas."],
-            progression: ["progressionType", progressionOptions, "PA e PG usam fórmulas de termo e soma."],
-            geometry:    ["geometryType",    geometryOptions,    "Áreas em unidades², volumes em unidades³."],
-            engineering: ["engineeringType", engineeringOptions, "Use o SI — Pa, N, m, kg, s."]
+            finance:       ["financeType",       financeOptions,       "Use ponto decimal, ex: 0.05 para 5%."],
+            electrical:    ["electricalType",    electricalOptions,    "Para Leis de Ohm: coloque 0 no campo a calcular. Para associações: informe valores separados por vírgula."],
+            physics:       ["physicsType",       physicsOptions,       "Preencha todos os campos com as unidades indicadas."],
+            progression:   ["progressionType",   progressionOptions,   "PA e PG usam fórmulas de termo e soma."],
+            geometry:      ["geometryType",      geometryOptions,      "Áreas em unidades², volumes em unidades³."],
+            engineering:   ["engineeringType",   engineeringOptions,   "Use o SI — Pa, N, m, kg, s."],
+            trigonometry:  ["trigonometryType",  trigonometryOptions,  "Ângulos em graus."],
+            statistics:    ["statisticsType",    statisticsOptions,    "Informe os valores separados por vírgula, ex: 4, 8, 15, 16, 23."],
+            combinatorics: ["combinatoricsType", combinatoricsOptions, "n e x devem ser inteiros não negativos, com x ≤ n."],
+            matrices:      ["matricesType",      matricesOptions,      "Preencha cada quadradinho da matriz com o valor correspondente."]
         };
 
         if (subMap[type]) {
@@ -378,6 +484,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const config = opts[selVal];
             const fieldHtml = config.fields.map(f => {
                 if (f.type === "text") return textInput(f.name, f.label, "Ex: 10, 20, 30");
+                if (f.type === "matrix") return matrixInput(f.name, f.label, f.size);
                 return numberInput(f.name, f.label);
             });
             renderFieldSet([buildSubSelect(selName, labels[type], opts, selVal), ...fieldHtml].join(""), hint);
@@ -716,17 +823,188 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // ── trigonometria ──────────────────────────────────────────────
+    function calculateTrig(op) {
+        const toRad = deg => deg * Math.PI / 180;
+        const g = (n) => rn(n);
+        switch (op) {
+            case "sin": {
+                const ang = g("angulo");
+                if (ang === null) return "Preencha o ângulo.";
+                chartTrig("sin", ang);
+                return `sen(${fmt(ang)}°) = ${fmt(Math.sin(toRad(ang)))}`;
+            }
+            case "cos": {
+                const ang = g("angulo");
+                if (ang === null) return "Preencha o ângulo.";
+                chartTrig("cos", ang);
+                return `cos(${fmt(ang)}°) = ${fmt(Math.cos(toRad(ang)))}`;
+            }
+            case "tan": {
+                const ang = g("angulo");
+                if (ang === null) return "Preencha o ângulo.";
+                if (Math.abs(Math.cos(toRad(ang))) < 1e-9) return "Tangente indefinida nesse ângulo (90° + 180°k).";
+                chartTrig("tan", ang);
+                return `tan(${fmt(ang)}°) = ${fmt(Math.tan(toRad(ang)))}`;
+            }
+            case "lawSines": {
+                const a = g("ladoA"), A = g("anguloA"), B = g("anguloB");
+                if (a === null || A === null || B === null) return "Preencha todos os campos.";
+                if (A <= 0 || A >= 180 || B <= 0 || B >= 180) return "Ângulos devem estar entre 0° e 180°.";
+                const b = a * Math.sin(toRad(B)) / Math.sin(toRad(A));
+                return `Lado desconhecido: ${fmt(b)}`;
+            }
+            case "lawCosines": {
+                const b = g("ladoB"), c = g("ladoC"), A = g("anguloA");
+                if (b === null || c === null || A === null) return "Preencha todos os campos.";
+                const a2 = b * b + c * c - 2 * b * c * Math.cos(toRad(A));
+                if (a2 < 0) return "Valores inválidos (resultado negativo).";
+                return `Lado desconhecido: ${fmt(Math.sqrt(a2))}`;
+            }
+            case "convertAngle": {
+                const valor = g("valor"), de = g("de");
+                if (valor === null || de === null) return "Preencha todos os campos.";
+                if (de === 0) return `Em radianos: ${fmt(valor * Math.PI / 180)}`;
+                if (de === 1) return `Em graus: ${fmt(valor * 180 / Math.PI)}`;
+                return "Preencha 'De' com 0 (graus) ou 1 (radianos).";
+            }
+            default: return "Trigonometria inválida.";
+        }
+    }
+
+    // ── estatística descritiva ──────────────────────────────────────
+    function calculateStatistics(op) {
+        const nums = parseNumbers(getFormValue("valores"));
+        if (nums.length < 1) return "Informe ao menos 1 valor, separado por vírgula.";
+        const n = nums.length;
+        const mean = nums.reduce((a, v) => a + v, 0) / n;
+        switch (op) {
+            case "mean":
+                chartStatistics(nums, mean);
+                return `Média: ${fmt(mean)}`;
+            case "median": {
+                const sorted = [...nums].sort((a, b) => a - b);
+                const mid = Math.floor(n / 2);
+                const median = n % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+                chartStatistics(nums, mean);
+                return `Mediana: ${fmt(median)}`;
+            }
+            case "mode": {
+                const freq = {};
+                nums.forEach(v => { freq[v] = (freq[v] || 0) + 1; });
+                const maxFreq = Math.max(...Object.values(freq));
+                chartStatistics(nums, mean);
+                if (maxFreq <= 1) return "Não há moda (todos os valores aparecem uma vez).";
+                const modes = Object.keys(freq).filter(k => freq[k] === maxFreq).map(Number);
+                return `Moda: ${modes.map(fmt).join(", ")}`;
+            }
+            case "stdDev": {
+                if (n < 2) return "Informe ao menos 2 valores.";
+                const variance = nums.reduce((a, v) => a + (v - mean) ** 2, 0) / n;
+                chartStatistics(nums, mean);
+                return `Desvio padrão: ${fmt(Math.sqrt(variance))}`;
+            }
+            case "variance": {
+                if (n < 2) return "Informe ao menos 2 valores.";
+                const variance = nums.reduce((a, v) => a + (v - mean) ** 2, 0) / n;
+                chartStatistics(nums, mean);
+                return `Variância: ${fmt(variance)}`;
+            }
+            default: return "Estatística inválida.";
+        }
+    }
+
+    // ── combinatória / probabilidade ─────────────────────────────────
+    function factorial(n) {
+        if (n < 0 || !Number.isInteger(n)) return NaN;
+        let result = 1;
+        for (let i = 2; i <= n; i++) result *= i;
+        return result;
+    }
+    function calculateCombinatorics(op) {
+        const g = (n) => rn(n);
+        switch (op) {
+            case "factorial": {
+                const n = g("n");
+                if (n === null) return "Preencha n.";
+                if (n < 0 || !Number.isInteger(n)) return "n deve ser um inteiro ≥ 0.";
+                if (n > 170) return "n muito grande (estoura o limite numérico).";
+                return `${fmt(n)}! = ${fmt(factorial(n))}`;
+            }
+            case "permutation": {
+                const n = g("n"), x = g("x");
+                if (n === null || x === null) return "Preencha n e x.";
+                if (!Number.isInteger(n) || !Number.isInteger(x) || n < 0 || x < 0 || x > n) return "Valores inválidos (0 ≤ x ≤ n, inteiros).";
+                return `A(${fmt(n)},${fmt(x)}) = ${fmt(factorial(n) / factorial(n - x))}`;
+            }
+            case "combination": {
+                const n = g("n"), x = g("x");
+                if (n === null || x === null) return "Preencha n e x.";
+                if (!Number.isInteger(n) || !Number.isInteger(x) || n < 0 || x < 0 || x > n) return "Valores inválidos (0 ≤ x ≤ n, inteiros).";
+                return `C(${fmt(n)},${fmt(x)}) = ${fmt(factorial(n) / (factorial(x) * factorial(n - x)))}`;
+            }
+            default: return "Combinatória inválida.";
+        }
+    }
+
+    // ── matrizes ──────────────────────────────────────────────────────
+    function calculateMatrices(op) {
+        const parseMatrix = (name, size) => {
+            const cells = [];
+            for (let i = 0; i < size; i++) {
+                const v = rn(`${name}_${i}`);
+                if (v === null) return null;
+                cells.push(v);
+            }
+            return cells;
+        };
+        switch (op) {
+            case "sum2x2": {
+                const a = parseMatrix("m1", 4), b = parseMatrix("m2", 4);
+                if (!a || !b) return "Preencha todos os quadradinhos das duas matrizes.";
+                const r = a.map((v, i) => v + b[i]);
+                return `Resultado:\n[${fmt(r[0])}, ${fmt(r[1])}]\n[${fmt(r[2])}, ${fmt(r[3])}]`;
+            }
+            case "mult2x2": {
+                const a = parseMatrix("m1", 4), b = parseMatrix("m2", 4);
+                if (!a || !b) return "Preencha todos os quadradinhos das duas matrizes.";
+                const [a11, a12, a21, a22] = a, [b11, b12, b21, b22] = b;
+                const r11 = a11 * b11 + a12 * b21, r12 = a11 * b12 + a12 * b22;
+                const r21 = a21 * b11 + a22 * b21, r22 = a21 * b12 + a22 * b22;
+                return `Resultado:\n[${fmt(r11)}, ${fmt(r12)}]\n[${fmt(r21)}, ${fmt(r22)}]`;
+            }
+            case "det2x2": {
+                const a = parseMatrix("m1", 4);
+                if (!a) return "Preencha todos os quadradinhos da matriz.";
+                const [a11, a12, a21, a22] = a;
+                return `Determinante: ${fmt(a11 * a22 - a12 * a21)}`;
+            }
+            case "det3x3": {
+                const a = parseMatrix("m1", 9);
+                if (!a) return "Preencha todos os quadradinhos da matriz.";
+                const [a11, a12, a13, a21, a22, a23, a31, a32, a33] = a;
+                const det = a11 * (a22 * a33 - a23 * a32) - a12 * (a21 * a33 - a23 * a31) + a13 * (a21 * a32 - a22 * a31);
+                return `Determinante: ${fmt(det)}`;
+            }
+            default: return "Operação de matriz inválida.";
+        }
+    }
+
     // ── dispatcher principal ──────────────────────────────────────
 
     function calculate() {
         const type = calcType.value;
         const subtypeKey = {
-            finance:     "financeType",
-            electrical:  "electricalType",
-            physics:     "physicsType",
-            progression: "progressionType",
-            geometry:    "geometryType",
-            engineering: "engineeringType"
+            finance:       "financeType",
+            electrical:    "electricalType",
+            physics:       "physicsType",
+            progression:   "progressionType",
+            geometry:      "geometryType",
+            engineering:   "engineeringType",
+            trigonometry:  "trigonometryType",
+            statistics:    "statisticsType",
+            combinatorics: "combinatoricsType",
+            matrices:      "matricesType"
         };
         const sub = subtypeKey[type];
         const op = sub ? (form.elements[sub]?.value || "") : "";
@@ -741,7 +1019,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 physics: physicsOptions,
                 progression: progressionOptions,
                 geometry: geometryOptions,
-                engineering: engineeringOptions
+                engineering: engineeringOptions,
+                trigonometry: trigonometryOptions,
+                statistics: statisticsOptions,
+                combinatorics: combinatoricsOptions,
+                matrices: matricesOptions
             };
             const map = optMap[type];
             if (map && map[op]) opDesc = map[op].title;
@@ -812,12 +1094,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 break;
             }
-            case "finance":     result = calculateFinance(op); break;
-            case "electrical":  result = calculateElectrical(op); break;
-            case "physics":     result = calculatePhysics(op); break;
-            case "progression": result = calculateProgression(op); break;
-            case "geometry":    result = calculateGeometry(op); break;
-            case "engineering": result = calculateEngineering(op); break;
+            case "finance":       result = calculateFinance(op); break;
+            case "electrical":    result = calculateElectrical(op); break;
+            case "physics":       result = calculatePhysics(op); break;
+            case "progression":   result = calculateProgression(op); break;
+            case "geometry":      result = calculateGeometry(op); break;
+            case "engineering":   result = calculateEngineering(op); break;
+            case "trigonometry":  result = calculateTrig(op); break;
+            case "statistics":    result = calculateStatistics(op); break;
+            case "combinatorics": result = calculateCombinatorics(op); break;
+            case "matrices":      result = calculateMatrices(op); break;
             default: result = "Tipo de cálculo desconhecido.";
         }
 
@@ -893,7 +1179,8 @@ document.addEventListener("DOMContentLoaded", () => {
         logCode(5, labels[calcType.value] || calcType.value);
     });
     form.addEventListener("change", (e) => {
-        if(["financeType","electricalType","physicsType","progressionType","geometryType","engineeringType"].includes(e.target.name)) {
+        if(["financeType","electricalType","physicsType","progressionType","geometryType","engineeringType",
+            "trigonometryType","statisticsType","combinatoricsType","matricesType"].includes(e.target.name)) {
             renderFields();
             logCode(5, e.target.name);
         }
@@ -913,10 +1200,3 @@ document.addEventListener("DOMContentLoaded", () => {
     renderFields();
     logCode(6, "carregamento inicial da página");
 });
-// aqui está oque cada log significa
-// 1 = calculo feito / Toda vez que calculate() termina de processar (qualquer categoria)
-// 2 = Resultado salvo no histórico	/ Após o localStorage.setItem gravar a entrada
-// 3 = Histórico renderizado na tela / Após renderHistory() atualizar a lista (mesmo se vazia)
-// 4 = Histórico limpo pelo usuário / Ao clicar em "clear-history"
-// 5 = Campos dinâmicos re-renderizados / Ao trocar o tipo de cálculo ou a subcategoria (ex: mudar de "Finanças" para "Juros Compostos")
-// 6 = Script inicializado com sucesso / Ao final do carregamento da página
